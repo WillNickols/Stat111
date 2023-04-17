@@ -1,0 +1,197 @@
+---
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes:
+- \usepackage{tcolorbox}
+- \usepackage{fancyhdr}
+- \usepackage[utf8]{inputenc}
+- \usepackage{wrapfig}
+- \usepackage{amsmath}
+urlcolor: blue
+---
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Will Nickols}
+\lhead{Section 8}
+\rfoot{Page \thepage}
+
+# Announcements
+
+\begin{wrapfigure}{r}{0.12\textwidth}
+  \centering
+    \vspace*{-1.3cm}
+    \includegraphics[width=\linewidth]{section_qr_code.png}
+\end{wrapfigure}
+
+Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+
+Pset 8 due Friday 4/7
+
+```{r, echo=F, warning=F, message=F, cache=F}
+list.of.packages <- c("ggplot2", "gridExtra", "matrixStats")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library(ggplot2)
+library(gridExtra)
+library(matrixStats)
+```
+
+# COVID-19 Impact
+
+These questions will deal with a dataset listing deaths from COVID-19 per county from January 1st, 2020 to March 25th, 2023 [available here](https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-in-the-United-St/kn79-hsxy) and 2020 county population numbers [available here](https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html).  The CDC does not make data available for counties with fewer than 10 deaths.  We could use a censored data approach, but for simplicity we will restrict our focus to counties with at least 10 deaths.
+
+```{r, warning=FALSE, echo=F, fig.width=5, fig.height=3, fig.align='center'}
+covid_deaths <- read.csv("data/covid_deaths.csv")
+covid_deaths <- covid_deaths[!is.na(covid_deaths$population) & 
+                               !is.na(covid_deaths$deaths),]
+ggplot(covid_deaths, aes(x=population, y=deaths/population)) + 
+  geom_point() + 
+  scale_x_continuous(trans = 'log', breaks = 10^(3:8)) + 
+  xlab("Population") + 
+  ylab("COVID-19 Death rate") + 
+  theme_bw()
+```
+1. Suppose we wanted to know which counties had the best and worst COVID-19 responses.  Name a few reasons we should not just look at the counties with the maximum and minimum raw death rates.
+
+\vspace{2 cm}
+
+2. We will model the deaths in a particular county as $Y_i\sim\textrm{Pois}(c\lambda_in_i)$ where $c=3.23$ is the number of years included in the data set, $\lambda_i$ is the county's annual death rate from COVID-19, and $n_i$ is the county's population.  Also, suppose we use the prior $\lambda_i\sim\textrm{Gamma}(a,b)$.  Write the prior density for $\lambda_i$, the likelihood function for $\lambda_i$, and the posterior density for $\lambda_i$.  What is the posterior distribution of $\lambda_i$?
+
+\vspace{5 cm}
+
+3. The following plot shows the prior, the likelihood, and the posterior for $b=100000$, $a=b\cdot 0.001$ for Middlesex, MA (the county that contains Harvard) and Franklin county, a county in western Massachusetts.  Middlesex has a population of $n=1632002$ while Franklin has a population of $n=71035$.  Interpret the plots.
+
+```{r, echo=F, fig.width=7, fig.height=3, fig.align='center', warning=F}
+make_df_for_plot <- function(x, y, n) {
+  b = 100000
+  a = 0.001 * 100000
+  c = 3.23
+  
+  df <- data.frame(matrix(ncol = 3, nrow = 0))
+  df <- rbind(df, data.frame(lambda=x, density=dgamma(x, a, b), type="Prior"))
+  df <- rbind(df, data.frame(lambda=x, density=exp(-c * n * x + y *log(x) - logSumExp(-c * n * x + y *log(x))), type="Likelihood"))
+  df <- rbind(df, data.frame(lambda=x, density=dgamma(x, a + y, b + c*n), type="Posterior"))
+  colnames(df) <- c("lambda", "density", "type")
+  return(df)
+}
+
+x <- seq(0, 0.005, 0.00001)
+y <- covid_deaths$deaths[covid_deaths$county == "Middlesex County, Massachusetts"]
+n <- covid_deaths$population[covid_deaths$county == "Middlesex County, Massachusetts"]
+
+df <- make_df_for_plot(x, y, n)
+
+p1 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
+  geom_line() + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  ylab("Density") + 
+  theme_bw() + 
+  theme(legend.position = "none") + 
+  ggtitle(("Middlesex"))
+
+x <- seq(0, 0.005, 0.00001)
+y <- covid_deaths$deaths[covid_deaths$county == "Franklin County, Massachusetts"]
+n <- covid_deaths$population[covid_deaths$county == "Franklin County, Massachusetts"]
+
+df <- make_df_for_plot(x, y, n)
+
+p2 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
+  geom_line() + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  ylab("Density") + 
+  theme_bw() + 
+  theme(legend.title = element_blank()) + 
+  ggtitle(("Franklin"))
+
+grid.arrange(p1, p2, ncol=2, widths=c(1,1.4))
+```
+
+\vspace{2 cm}
+
+4. Show that the posterior mean $E(\lambda_i|Y_i)$ can be interpreted as a weighted average of the observed death rate and the prior mean.  If we view $a$ and $b$ as "pseudocounts" of the number of deaths and the population, give an interpretation of the posterior mean for large $b$ and for large $n_i$.
+
+\vspace{3 cm}
+
+5. Suppose (wrongly) that the COVID-19 death rate does not change from year to year.  What is the posterior predictive distribution of COVID-19 deaths for 2024 ($Y'$) for a county with $Y$ deaths from 2020 to 2023 and $n$ people?  Verify that the expected value and variance of this distribution agree with what we would obtain through Adam's and Eve's laws conditioning on $\lambda$.
+
+\vspace{5 cm}
+
+6. Compare the MLE for $\lambda_i$ to the posterior mean of $\lambda_i$ for the counties with the highest COVID-19 death rates.  The red line shows the prior mean.
+
+```{r, echo=F, fig.width=5, fig.height=3, fig.align='center'}
+c = 3.23
+
+# Before adjustment
+covid_deaths$prior_rate <- covid_deaths$deaths/covid_deaths$population / c
+before_val <- cbind("County" = covid_deaths$county[order(covid_deaths$prior_rate, decreasing = T)[1:5]],
+                "Population" = covid_deaths$population[order(covid_deaths$prior_rate, decreasing = T)[1:5]],
+                "Rate (Unadjusted)" = round(covid_deaths$prior_rate[order(covid_deaths$prior_rate, decreasing = T)[1:5]], 4))
+
+# After adjustment
+b = 100000
+a = 0.001 * 100000
+
+covid_deaths$adjusted_rate <- (covid_deaths$deaths + a) / (b + c * covid_deaths$population)
+
+after_val <- cbind("County" = covid_deaths$county[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]],
+                "Population" = covid_deaths$population[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]],
+                "Rate (Adjusted)" = round(covid_deaths$adjusted_rate[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]], 4))
+
+knitr::kable(before_val)
+knitr::kable(after_val)
+
+ggplot(covid_deaths, aes(x=population, y=adjusted_rate)) + 
+  geom_point() + 
+  scale_x_continuous(trans = 'log', breaks = 10^(3:8)) + 
+  xlab("Population") + 
+  ylab("COVID-19 Death rate") + 
+  theme_bw() + 
+  geom_hline(yintercept = a/b, col="red")
+```
+\vspace{2 cm}
+
+\newpage
+# Chat GPT-4 testing
+
+1. You are testing Chat GPT-4's question answering abilities, and you want to evaluate the probability $p$ of it answering a question correctly.  To model your initial uncertainty about its abilities, you use the noninformative prior $p\sim\textrm{Unif}(0,1)$.  Assume we have not yet performed any tests.  How many questions would Chat GPT-4 need to get correct in a row before we will be $c$ confident $p$ is at least $\tau$?  Recall that the PDF of a Beta($a,b$) random variable is $\frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}x^{a-1}(1-x)^{b-1}$.  Also, note that for an integer $a$, $\Gamma(a)=(a-1)!$
+
+\vspace{3 cm}
+
+2. Now, suppose Chat GPT-4 has answered the first $m$ questions correctly.  Find the posterior mean, median, and mode (MAP) of $p$.  Show that the MAP is equivalent to the MLE because we are using a flat prior.
+
+\vspace{4 cm}
+
+3. What is the probability Chat GPT-4 gets the next question correct given it got the first $m$ correct?
+
+\vspace{2 cm}
+
+4. You have $n$ more questions you plan to ask.  Explain intuitively why the probability of it getting all of these $n$ questions correct is not $\left(\frac{1+m}{2+m}\right)^n$.
+
+\vspace{2 cm}
+
+5. What is the probability of Chat GPT-4 getting the next $n$ questions correct given that it got the first $m$ correct?
+
+\vspace{4 cm}
+
+6. Why does this make sense in the special case of $m=0$?
+
+\vspace{2 cm}
+
+7. Now, suppose Chat GPT-4 has gotten $a$ questions correct and $b$ questions wrong.  Updating from the original uniform prior, find the PMF of $Y$, the number of questions Chat GPT-4 will get correct out of the next $n$ questions.
+
+\vspace{7 cm}
+
+
+
+
+
+
+
+
+
+
+
