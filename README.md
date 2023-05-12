@@ -1,2 +1,2 @@
-# Stat111
-Spring 2023 Stat 111 teaching material
+# Stat 111
+This repository contains Will Nickols's teaching material for the 2023 offering of Stat 111. Section materials are for 1-hour weekly sections designed to review lecture material and practice concepts that appeared on the homeworks. Some questions were inspired by the course homeworks, and the data sets were obtained from the cited sources, but the questions, solutions, and write-ups are my own. The final review material was for a 3-hour final review lecture with interspersed problem solving.
