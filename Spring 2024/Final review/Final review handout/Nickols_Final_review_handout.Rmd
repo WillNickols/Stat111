@@ -1,0 +1,891 @@
+---
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+header-includes:
+- \usepackage{tcolorbox}
+- \usepackage{fancyhdr}
+- \usepackage[utf8]{inputenc}
+- \usepackage{wrapfig}
+- \usepackage{amsmath}
+- \usepackage{booktabs}
+- \usepackage{esvect}
+urlcolor: blue
+---
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Will Nickols}
+\lhead{Final review}
+\rfoot{Page \thepage}
+\newcommand{\indep}{\perp \!\!\! \perp}
+
+# Announcements
+
+- The cumulative final will be in Science Center Hall B on Monday, May 8, from 2:00 pm to 5:00 pm.
+
+- Four double-sided reference sheets are allowed.
+
+- 4 previous finals and solutions are on Canvas.
+
+- The previous midterms are also good reviews.
+
+- If you've exhausted all else, Will's section notes are entirely practice problems and are (I think) mutually exclusive with other sections' problems.
+
+```{r, echo=F, warning=F, message=F, cache=F}
+list.of.packages <- c("ggplot2", "gridExtra", "reshape2", "dplyr", "matrixStats")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(dplyr)
+library(matrixStats)
+
+set.seed(111)
+```
+
+# Section 1: Models, metrics, likelihood
+
+## Terminology
+
+**Estimand**: The thing to infer (usually a parameter in a model).  
+
+- Example: Average height of an American male.
+
+**Estimator**: A function of the random variable(s) to to estimate the estimand.
+
+- Example: A plan to take the mean height of a sample of American males.
+
+**Estimate**: The crystallized estimator from observed data.
+
+- Example: The observed sample mean (e.g. 177 cm).
+
+**Statistic**: A function of the uncrystallized random variables (and possibly other constants).
+
+- A statistic cannot involve the parameters, but its distribution can and usually should involve the parameters.
+
+**Parametric**: A model in which the (joint) CDF is fully known once a ________ set of parameters is specified.
+
+- Example: ____________________
+
+**Nonparametric**: A model in which the (joint) CDF is only known once an _________ set of parameters is specified.
+
+- Example: __________________________
+
+## Estimator metrics
+
+**Bias**: $\textrm{Bias}(\hat\theta)=$_________________
+
+- In words: The average distance of an estimator from the estimand (lower absolute bias is better).
+
+- Unbiased: $\hat{\theta}$ is unbiased if $\textrm{Bias}(\hat\theta)=0$.
+
+- Strategy: Apply linearity of expectation to the estimator.
+
+**Standard error**: $\textrm{SE}(\hat{\theta})=$____________________.
+
+- In words: A measure of how variable the estimator is (smaller is better).
+
+- Strategy: Solve for $\textrm{Var}(\hat{\theta})$ using the usual strategies (pulling out constants squared, Eve's law, etc.) and square root the result.
+
+**Mean squared error**: $\textrm{MSE}(\hat{\theta})=E\left((\hat{\theta}-\theta)^2\right)=$____________________
+
+- Association: Overall measure of how good an estimator is.
+
+- RMSE: $\sqrt{\textrm{MSE}(\hat{\theta})}$.
+
+- Strategy: Usually, finding the bias and standard error and then converting to MSE works best.
+
+**Consistency**: ___________ as $n\rightarrow\infty$.
+
+- In words: As we obtain more and more data, our estimator estimates the estimand better and better.
+
+- Strategy: Show $\textrm{MSE}(\hat{\theta})\rightarrow0$.
+
+- Strategy: Apply the Law of Large Numbers (especially useful for consistency of estimators that can be interpreted as sample means).
+
+- Example: If $Y_1,...,Y_n\sim\mathcal{N}(0,\sigma^2)$, $\hat{\sigma}^2=\frac{1}{n}\sum_{i=1}^nY_i^2$ is consistent for _______ since
+
+\vspace{1cm}
+
+- Strategy: Apply the Continuous Mapping Theorem if a you want to show a function of a simple estimator converges to a function of a simple estimand.
+
+- Example: With $Y_i$ as above, $\hat{\sigma}$ is consistent for $\sigma$ by the CMT with $g(\sigma^2)=\sqrt{\sigma^2}$.
+
+- Strategy (Worst case): Directly verify $P(|\hat{\theta}-\theta|>\epsilon)\rightarrow 0$ as $n\rightarrow\infty$.
+
+## Likelihood
+
+**Likelihood function**: $L(\theta;y)=f_Y(y|\theta)$.
+
+- In words: The likelihood of observing the given data for a particular set of parameters as a function of the parameters, treating the data as fixed.
+
+- Note: $f_Y$ can be a PDF, PMF, or a joint PDF or PMF.
+
+- Note: We usually remove __________________ constants that do not involve the parameters (i.e. only involve the data or numerical constants).
+
+- Example: For the $Y_i$ above, $L(\sigma^2;\vv{y})=\prod_{i=1}^n\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{1}{2}\frac{y_i^2}{\sigma^2}\right)$.
+
+- __________________: $L(\sigma^2;\vv{y})=\prod_{i=1}^n\frac{1}{\sqrt{\sigma^2}}\exp\left(-\frac{1}{2}\frac{y_i^2}{\sigma^2}\right)$.
+
+- __________________: $L(\sigma^2;\vv{y})=\prod_{i=1}^n\exp\left(-\frac{1}{2}\frac{y_i^2}{\sigma^2}\right)$.
+
+- __________________: $L(\sigma^2;\vv{y})=\prod_{i=1}^n\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{y_i^2}{\sigma^2}\right)$.
+
+**Log-likelihood**: $\ell(\theta;y)=\log\left(L(\theta;y)\right)$.
+
+- Strategy: Log is an order-preserving transformation, so maximizing the log likelihood is the same as maximizing the likelihood and is usually easier. (Note that $\log$ is always the natural logarithm in this class.)
+
+- Note: We usually remove ____________ constants that do not involve the parameters.
+
+**Reparameterization**: For $\psi=g(\theta)$, $L(\psi;y)=L(\theta;y)$.
+
+- Note: The likelihood functions will not actually look the same, but evaluating $L(\theta;y)$ at a particular $\theta$ will give the same value as $L(\psi;y)$ evaluated at the corresponding $\psi$.
+
+- Strategy: Plug in $g^{-1}(\psi)$ for $\theta$ everywhere in $L(\theta;y)$.
+
+- Example: $L(\sigma^2;\vv{y})=L(\sigma;\vv{y})$.
+
+**Data transformation**: If the original $\vv{y}$ can be reconstructed from $h(\vv{y})$, $L(\theta;y)=L(\theta;h(y))$.
+
+- Example: $L(\sigma^2;\vv{y})=L(\sigma^2;\vv{\exp(y)})$.
+
+**Empirical CDF**: $\hat{F}(y)=\frac{1}{n}\sum_{j=1}^nI(y_j\leq y)$.
+
+**Censored data**: Some of the data is observed and some is in an unobserved region.
+
+- Strategy: Find the likelihood function by multiplying the PDF/PMF of known values by the CDF (or difference in CDFs) for the unobserved region.
+
+- Let $Y_1,...,Y_n\sim\textrm{Expo}(\lambda)$ be observed particle emission times from radioactive decay, but suppose the detector's clock broke from time $t_1$ to $t_2$ so we only know that $m$ decays occurred during that time, not when they were.  Then, 
+
+$L(\lambda;\vv{y})=$
+
+\vspace{1cm}
+
+# Section 2: MLE and MOM
+
+## Maximum likelihood estimation
+
+**Maximum likelihood estimate**: The value of $\hat{\theta}$ that maximizes $L(\theta;y)$.
+
+- Note: $\hat{\theta}$ can refer to either the estimator or the estimate.
+
+- Note: Under regularity conditions (mainly, the support of $Y$ does not depend on $\theta$ and all expectations and derivatives of the likelihood function exist), the MLE is consistent, asymptotically Normal, asymptotically unbiased, and asymptotically efficient (no other asymptotically unbiased estimator will have a lower standard error asymptotically).
+
+- Strategy: Write the likelihood function, convert it to the log likelihood function, set its derivative with respect to $\theta$ to 0, and solve for $\hat\theta$.
+
+- Example: For $Y_1,...,Y_n\sim\mathcal{N}(\mu,\sigma^2)$, $\hat{\mu}=\frac{1}{n}\sum_{i=1}^nY_i$ and $\hat{\sigma^2}=\frac{1}{n}\sum_{i=1}^n(Y_i-\bar{Y})^2$.
+
+**Invariance of the MLE**: If $\hat\theta$ is the MLE of $\theta$, ______ is the MLE of ______.
+
+- Note: If $g$ is one-to-one, this follows from invariance of likelihood; otherwise, we define this to be true.
+
+- Strategy: Use this to find non-standard quantities for a distribution (e.g. the probability a Pois($\lambda$) random variable is 0 using $\hat{\lambda}$ or the 0.95 quantile of $\mathcal{N}(\mu,\sigma^2)$ using $\hat{\mu}$ and $\hat\sigma^2$).
+
+## Method of moments
+
+**Method of moments**: Match the sample moments with the theoretical moments.
+
+- Strategy: Write the parameter of interest in terms of the distribution's moments and replace the true moments with sample moments.
+
+- Example: For $Y_1,...,Y_n\sim\mathcal{N}(\mu,\sigma^2)$, $\hat{\mu}=\frac{1}{n}\sum_{i=1}^nY_i$ and $\hat{\sigma^2}=\left(\frac{1}{n}\sum_{i=1}^nY_i^2\right)-\left(\frac{1}{n}\sum_{i=1}^nY_i\right)^2$.
+
+# Problem 1
+
+Ebola virus disease is a severe illness with a fatality rate of around 50\%.  The virus was first discovered in 1976, and the 2014-2016 West Africa outbreak was the most severe outbreak in recorded history.  The World Health Organization [tracks Ebola outbreaks](https://www.cdc.gov/vhf/ebola/history/chronology.html) by country and by year.  The plot below shows the case and death counts per year and per country for years in which a country had at least one confirmed case.
+
+```{r, fig.align='center', fig.height=3, fig.width=4, echo=F, cache=T}
+ebola <- read.csv("data/ebola.csv")
+ebola$Country_Year <- paste0(ebola$Country, "_", ebola$Year)
+ebola <- melt(ebola, id.vars = c("Country", "Year", "Notes", "Country_Year"))
+ggplot(ebola, aes(x=variable, y=value, group = Country_Year)) + 
+  geom_point() +
+  geom_path(position = "identity") +
+  theme_bw() + 
+  theme(legend.position = "none") + 
+  scale_y_continuous(trans=scales::pseudo_log_trans(), 
+                     breaks = c(0, 1, 10, 100, 1000, 10000)) + 
+  ylab("Count") +
+  xlab("")
+```
+It is important for government policymakers to be able to predict how many people will die of Ebola in a particular country during a particular year.  Consider the following two models where $Y_i$ is the number of Ebola deaths and $N_i$ is the number of Ebola cases in a particular country in a particular year:
+
+$$\begin{aligned}\textrm{Model 1}&: Y_i\sim\textrm{FS}(\lambda_1)\\
+\textrm{Model 2}&: Y_i\sim\textrm{Bin}(N_i,p),\;N_i\sim\textrm{FS}(\lambda_2)\\
+\end{aligned}$$
+
+Let $\mu=E(Y_1)$, and suppose we observe i.i.d. pairs $(Y_1,N_1),...,(Y_n,N_n)$.
+
+1. Find $\mu$ in terms of the model parameters for each model.
+
+\vspace{2cm}
+
+2. (Skip) Show that the variances of the marginal distributions of $Y$ are not the same and use this to conclude that the marginal distribution of $Y$ is different between the two models.
+
+\vspace{5cm}
+
+3. Find the MLE and a MOM estimator for $\mu$ in Model 1.
+
+\vspace{3cm}
+
+4. Find the MLE and a MOM estimator for $\mu$ in Model 2.  How do they compare to the estimators from 3?
+
+\vspace{9cm}
+
+# Section 3: Asymptotics
+
+## Asymptotic tools
+
+**Law of Large Numbers (LLN)**: For i.i.d. $Y_i\sim[\mu,\sigma^2]$, $\bar{Y_n}=\frac{1}{n}\sum_{i=1}^nY_i\xrightarrow{p}\mu$ as $n\rightarrow\infty$.
+
+- Note: The moment must exist.
+
+- Strategy: This shows the sample mean of any power of the data converges to its sample moment.
+
+- Example: $\frac{1}{n}\sum_{i=1}^nY_i^2\xrightarrow{p}$______.
+
+**Central Limit Theorem (CLT)**: For i.i.d. $Y_i\sim[\mu,\sigma^2]$, $$\sqrt{n}\left(\frac{\bar{Y}_n-\mu}{\sigma}\right)\xrightarrow{d}\mathcal{N}(0,1)$$
+
+- Strategy: This is often used in combination with Slutsky's Theorem for consistent estimators of $\sigma$.
+
+- Strategy: Asymptotic distributions of sample moments can be obtained by plugging in $E(Y^k)$ and $\textrm{Var}(Y^k)$.  These can then be transformed as necessary with the Delta Method.
+
+**Slutsky's Theorem**: If $X_n\xrightarrow{d}X$ and $Y_n\xrightarrow{d}c$ for a constant $c$, (1) $X_n+Y_n\xrightarrow{d}X+c$, (2) $X_nY_n\xrightarrow{d}cX$, (3) $X_n/Y_n\xrightarrow{d}X/c$ if $c\neq 0$.
+
+- Note: $X_n\xrightarrow{d}X$ and $Y_n\xrightarrow{d}Y$ does not imply $X_n+Y_n\xrightarrow{d}X+Y$ in general (but it does if $X_n$ and $Y_n$ are independent).
+
+- Strategy: Useful when part of the expression involves a sum divided by $n$ since LLN gives convergence to a constant.
+
+**Continuous Mapping Theorem (CMT)**: (1) If $X_n\xrightarrow{d} X$, $g(X_n)\xrightarrow{d} g(X)$.  (2) If $X_n\xrightarrow{p} X$, $g(X_n)\xrightarrow{p} g(X)$.  
+
+- Strategy: Useful for evaluating convergence of non-standard quantities of distributions (see Invariance of the MLE).
+
+**Delta Method**: If $\sqrt{n}(\hat{\theta}-\theta)\xrightarrow{d}\mathcal{N}(0,\omega^2)$ as $n\rightarrow\infty$ and $g$ is a differentiable function, $$\sqrt{n}(g(\hat{\theta})-g(\theta))\xrightarrow{d}$$
+
+- Strategy: Useful for creating asymptotic confidence intervals for non-standard quantities of distributions.
+
+- Result: Suppose $X$ has the continuous CDF $F(x)$.  Then, the $p^{th}$ sample quantile $\hat{Q}(p)$ has the asymptotic distribution $\sqrt{n}(\hat{Q}(p)-Q(p))\xrightarrow{d}\mathcal{N}\left(0,\frac{p(1-p)}{(f(Q(p)))^2}\right)$.
+
+## Score and Fisher
+
+**Score**: $s(\theta;y)=$____________
+
+- Fact: $E(s(\theta^*;Y))=0$ where $\theta^*$ is the true $\theta$ for the model and the expectation is with respect to the true model.
+
+- **Information equality**: $-E(s'(\theta^*;Y))=$___________ under regularity conditions.
+
+- Fact: $E(s(\hat{\theta};y))=0$ under regularity conditions.
+
+**Regularity conditions**:
+
+1. The data is i.i.d. $f_\theta(y)$.
+2. The support does not depend on $\theta$.
+3. $\frac{\partial^3}{\partial \theta^3}f_\theta(y)$ exists.
+4. $\theta^*$ is not on the boundary of the parameter space.
+5. We can differentiate under the integral sign.
+
+**Fisher information**: $\mathcal{I}_{\vv{Y}}(\theta^*)=$________________.
+
+- Fact: For i.i.d. data, $\mathcal{I}_{\vv{Y}}(\theta^*)=$__________________.
+
+- Fact: If regularity conditions hold, $\mathcal{I}_{\vv{Y}}(\theta^*)=-E(s'(\theta^*;\vv{Y}))$.
+
+- **Fisher transformation**: If $g$ is one-to-one and differentiable, $\mathcal{I}(g(\theta))=$_________________
+
+- Strategy: Use Fisher information to find asymptotic distributions of MLEs.
+
+**Cramer-Rao lower bound**: Under regularity conditions, if $\hat{\theta}$ is unbiased for $\theta$, $\textrm{Var}(\hat{\theta})\geq \frac{1}{n\mathcal{I}_{Y_1}(\theta^*)}$.
+
+- Equivalently: This is a bound on MSE($\hat{\theta}$) since $\hat{\theta}$ is unbiased.
+
+- **Cramer-Rao lower bound for (possibly) biased estimators**: $\textrm{Var}(\hat{\theta})\geq \frac{|g'(\theta^*)|^2}{n\mathcal{I}_{Y_1}(\theta^*)}$ where $g(\theta^*)=E(\hat{\theta})$.
+
+**MLE consistency**: With regularity conditions and a correctly specified model, the MLE is consistent: $\hat{\theta}\xrightarrow{p}\theta^*$.
+
+**MLE asymptotics**: With regularity conditions and a correctly specified model, the MLE has the asymptotic distribution: 
+$$\sqrt{n}(\hat{\theta}-\theta^*)\xrightarrow{d}$$
+
+- Fact: The MLE achieves the CRLB.
+
+- Example: Let $Y_1,...,Y_n\sim\textrm{Pois}(\lambda)$.  Then, with $\hat{\lambda}=\bar{Y}$, by the CLT, 
+
+\vspace{2cm}
+
+Applying the transformation $g(\lambda)=\sqrt{\lambda}$, the Delta Method gives
+
+\vspace{2cm}
+
+As an approximation, this says 
+
+\vspace{2cm}
+
+Since the sum of Poisson random variables is Poisson, this says that for sufficiently large $\lambda$, with $W\sim\textrm{Pois}(\lambda)$, $\textrm{Var}(\sqrt{W})=1/4$.
+
+# Problem 2
+
+In this problem, we will find the variance stabilizing transformation of the Binomial distribution.  Let $Y\sim\textrm{Bin}(n,p)$.
+
+1. Find the asymptotic distribution of the MLE $\hat{p}$ as $n\rightarrow\infty$.
+
+\vspace{2cm}
+
+2. Find the Fisher information of $p$ for a single Bern($p$).  What is the Fisher information for a one-to-one differentiable transformation $\theta=g(p)$?
+
+\vspace{2cm}
+
+3. Show that if $\theta=g(p)=\arcsin(\sqrt{p})$, $\mathcal{I}_{1}(\theta)$ is a constant.
+
+\vspace{2cm}
+
+4. Write an approximate distribution for a function $g$ of $p$ and $n$ such that for large $n$ the variance of $g(\hat{p})$ is constant.
+
+\vspace{2cm}
+
+# Section 4: Intervals
+
+**Interval estimator**: An interval estimator is an interval $C(\vv{Y})=[L(\vv{Y}), U(\vv{Y})]$ with $L(\vv{Y})\leq U(\vv{Y})$.
+
+**Coverage**: If an interval $C(\vv{Y})$ for $\theta$ contains $\theta$ ($\theta\in C(\vv{Y})$), the interval covers $\theta$.
+
+**Coverage probability**: $P(\theta\in C(\vv{Y})|\theta)$.
+
+- Note: The coverage probability is a function of $\theta$.
+
+**Confidence interval**: An interval estimator with coverage probability at least $1-\alpha$ for all possible values of $\theta$ is a $100(1-\alpha)\%$ confidence interval.
+
+- Interpretation: The probability that the random interval generated by repeated draws of the data contains the fixed $\theta$ is $1-\alpha$.
+
+- Biohazard: Not the probability a particular interval contains $\theta$.
+
+- Note: The confidence interval is not unique; there could be multiple intervals with coverage probability $1-\alpha$.
+
+**Pivotal interval**: A pivot is a function of the data and the parameter(s) whose distribution does not depend on the parameter(s).  These can be used to construct intervals.
+
+- Strategy: The Normal, $t$, Gamma, and $\chi^2$ distributions are commonly used as pivots.
+
+- Example: For $Y_1,...,Y_n\sim\mathcal{N}(\mu,\sigma^2)$ with both $\mu$ and $\sigma^2$ unknown, the quantity $\frac{\bar{Y}-\mu}{\sqrt{\hat{\sigma}^2/n}}$ has a $t_{n-1}$ distribution, so we can construct an exact 95\% confidence interval for $\mu$ as:
+$$P\left(-Q_{t_{n-1}}(0.975)\leq \frac{\bar{Y}-\mu}{\sqrt{\hat{\sigma}^2/n}}\leq Q_{t_{n-1}}(0.975)\right)=0.95$$
+$$\implies P\left(\bar{Y}-Q_{t_{n-1}}(0.975)\sqrt{\hat{\sigma}^2/n}\leq \mu\leq \bar{Y}+Q_{t_{n-1}}(0.975)\sqrt{\hat{\sigma}^2/n}\right)=0.95$$
+so the interval is $\left[\bar{Y}-Q_{t_{n-1}}(0.975)\sqrt{\hat{\sigma}^2/n}, \bar{Y}+Q_{t_{n-1}}(0.975)\sqrt{\hat{\sigma}^2/n}\right]$.
+
+**Asymptotic interval**: Using the asymptotic distribution of $\hat{\theta}$, we can find an approximate pivot.
+
+- Example: Let $Y_1,...,Y_n\sim\textrm{Expo}(\lambda)$.  Then, by the Central Limit Theorem $$\frac{\sqrt{n}(\bar{Y}-1/\lambda)}{\sqrt{1/\lambda^2}}\xrightarrow{d}\mathcal{N}(0, 1)$$
+Then, we can construct an approximate interval: 
+$$\begin{aligned}0.95&=P(-Q_{\mathcal{N}(0,1)}(0.975)\leq \sqrt{n}(\bar{Y}\lambda-1)\leq Q_{\mathcal{N}(0,1)}(0.975))\\
+&=P(-Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1\leq \bar{Y}\lambda\leq Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1)\\
+&=P\left(\frac{-Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1}{\bar{Y}}\leq \lambda\leq \frac{Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1}{\bar{Y}}\right)\\
+\end{aligned}$$
+so the interval is $$\left[\frac{-Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1}{\bar{Y}}, \frac{Q_{\mathcal{N}(0,1)}(0.975)/\sqrt{n}+1}{\bar{Y}}\right]$$
+
+# Section 5: Sufficient statistics and EFs
+
+**Sufficient statistics**: For $Y_1,...,Y_n$ from $F_{\vv{Y}|\theta}$, a statistic $T(\vv{Y})$ is sufficient for $\theta$ if the conditional distribution $Y_1,...,Y_n|T(\vv{Y})$ does not depend on $\theta$.
+
+- Note: Sufficient statistics are not unique.
+
+**Factorization criterion**: $T(\vv{Y})$ is sufficient for $\theta$ iff we can factor the joint PDF/PMF as $$f_{\vv{Y}}(\vv{y}|\theta)=$$
+
+- Strategy: Since $h(y)$ does not depend on $\theta$, $L(\theta;\vv{y})\propto g(T(\vv{y}), \theta)$, so the likelihood can be written purely in terms of ______ and ______.
+
+**Rao-Blackwell**: If $T$ is a sufficient statistic and $\hat{\theta}$ is an estimator for $\theta$, $\textrm{MSE}(\hat{\theta}_{RB})=\textrm{MSE}(E(\hat{\theta}|T))$___________.
+
+- Note: Rao-Blackwell only improves __________, not ______.
+
+- Rao-Blackwell will not change $\hat{\theta}$ that are already functions of $T$.  In particular, it will not improve the MLE.
+
+**Natural Exponential Family (NEF)**: $Y$ follows an NEF if its PDF is of the form $$\exp\Big(y\theta-\Psi(\theta)\Big)h(y)$$
+
+- Examples: Poisson, Binomial ($n$ fixed), Negative Binomial ($r$ fixed), Normal ($\sigma^2$ known), Gamma ($a$ known).
+
+**NEF Properties**:
+
+1. $E(Y)=\Psi'(\theta)$, $\textrm{Var}(Y)=\Psi''(\theta)$, the MGF is $E(e^{tY})=\exp\Big(\Psi(\theta+t)-\Psi(\theta)\Big)$.
+2. $\bar{Y}$ is a sufficient statistic for $\theta$.
+3. The MLE for $E(Y)$ is $\bar{Y}$.
+4. The Fisher information of a single observation is $\mathcal{I}_{Y_1}(\theta)=\Psi''(\theta)$.
+
+- Example: For $Y\sim\textrm{FS}(\lambda)$, 
+$$\begin{aligned}P(Y=y)&=\lambda(1-\lambda)^{y-1}\\
+&=\exp\Big(\log(\lambda)+(y-1)\log\left(1-\lambda\right)\Big)\\
+&=\exp\Big(y\log\left(1-\lambda\right)-\log\left(1-\lambda\right)+\log(\lambda)\Big)\\
+&=\exp\Big(y\log\left(1-\lambda\right)-\log\left(\frac{1-\lambda}{\lambda}\right)\Big)\\
+&=\exp\Big(y\theta-\Psi(\theta)\Big)h(y)\\
+\end{aligned}$$
+where $h(y)=$_____, $\theta=$______________, and $\Psi(\theta)=$______________________.
+
+**Exponential family (EF)**: $Y$ follows an EF if its PDF is of the form $$\exp\Big(T(y)\theta-\Psi(\theta)\Big)h(y)$$ for some function $T$.
+
+- Examples: Normal with $\mu$ and $\sigma^2$ unknown, Weibull.
+
+# Section 6: Regression
+
+**Predictive regression**: Attempting to predict an outcome variable $Y$ from a vector of covariates $\vv{X}$: $\mu(\vv{x})=\mu(Y|\vv{X}=\vv{x})$.
+
+- In words: Expected value of the outcome given the predictors.
+
+**Regression error**: $U(\vv{x})=Y-\mu(\vv{x})$.
+
+- Note: This is still a random variable where the randomness comes from $Y$.
+
+- Note: This is unobservable because this would require knowing the true $\mu(\vv{x})$.
+
+- Fact: $E(U(\vv{X}))=0$.
+
+- Fact: $\textrm{Cov}(U(\vv{X}),\vv{X})=0$.
+
+**Homoscedasticity**: $\textrm{Var}(U_j|\vv{X}=\vv{x})=\sigma^2$ for all $j$.
+
+- Alternative: **Heteroscedastic** (different variances for different errors).
+
+**Linear regression**: The regression function is linear in the parameters: $\mu(\vv{x})=\theta_0+\theta_1x_1+...+\theta_kx_k$.
+
+- Note: Linear in the ____________, not the ___________
+
+**Residual**: $\hat{U_j}=Y_j-\hat{\theta}\vv{x_j}$.
+
+- Note: We *can* compute this from the data (contra regression error).
+
+**MLE for predictive regression**: $\vv{\hat{\theta}}_{\textrm{MLE}}=\textrm{argmax}_{\vv\theta}\prod_{i=1}^n f(y_i|\vv{X_i}=\vv{x_i},\vv\theta)$.
+
+- Example: For $Y_i|X_j=\theta X_j+\epsilon_j, \; \epsilon_j\sim\mathcal{N}(0,\sigma^2)$, $$\hat{\theta}_{\textrm{MLE}}=\frac{\sum_{i=1}^nY_ix_i}{\sum_{i=1}^nx_i^2}$$
+
+**Least squares estimator**: $\hat{\theta}_{\textrm{LS}}=\textrm{argmin}_\theta\sum_{i=1}^n (y_i-\vv{x_i}\cdot\vv\theta)^2$.
+
+- Example: $\hat{\theta}_{\textrm{LS}} = \hat{\theta}_{\textrm{MLE}}$ for homoscedastic Normal errors.
+
+**Logistic regression**: $$P(Y=1|\vv{X}=\vv{x},\vv\theta)=\frac{\exp(\theta_0+\sum_{k=1}^Kx_k\theta_k)}{1+\exp(\theta_0+\sum_{k=1}^Kx_k\theta_k)}$$
+
+**Descriptive regression**: If $X,Y$ have a joint distribution, the descriptive regression is $\beta_{Y\sim X}=\frac{\textrm{Cov}(X,Y)}{\textrm{Var}(X)}$.
+
+- Note: Summary of the relationship rather than conditioning on $X$ to predict $Y$.
+
+- Fact: $(E(Y)-\beta_{Y\sim X}E(X), \beta_{Y\sim X})$ are the $(a,b)$ that minimize $E((Y-(a+bX))^2)$.
+
+# Problem 3
+
+Significant work in economics and global health has gone into determining which healthcare interventions prevent the most suffering per dollar spent.  The metric of choice for these evaluations is the DALY, a disability adjusted life year.  Because some global health interventions save lives while others improve lives, the DALY attempts to provide a standardized unit of comparison.  For example, [antenatal syphilis screening in Uganda in 2013](https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001545) was estimated to avert 124 DALYs per \$1000 USD.  The [Tufts Medical Center Cost-Effectiveness Analysis Registry](https://cear.tuftsmedicalcenter.org/registry/download) aggregates academic literature on healthcare interventions and standardizes the results to compare different interventions.  This literature is notoriously variable and unstandardized, so the specific metrics for each intervention might not be accurate, but the general trends provide some insight.  Here, we will try to compare the median cost effectiveness of an intervention in a low-income country (GNI per capita below \$1085) versus a high-income country (GNI per capita above \$13205).
+
+```{r, fig.height=3, fig.width=7, fig.align='center', echo=F, cache=T}
+CEA <- read.csv("data/CEA.csv")
+
+# DALYs <= 0 are measuring something cost savings or are reported incorrectly
+CEA <- CEA[!is.na(CEA$DALYinCurrentUSDollars) & CEA$DALYinCurrentUSDollars > 0,]
+CEA$DalyPerThousand <- 1000/CEA$DALYinCurrentUSDollars
+
+plot1 <- ggplot(CEA, aes(x=DalyPerThousand)) + 
+  geom_histogram(bins = 100) + 
+  theme_bw() + 
+  xlab("DALYs averted per $1000") + 
+  ylab("Interventions")
+
+plot2 <- ggplot(CEA, aes(x=DalyPerThousand)) + 
+  geom_histogram(bins = 100) + 
+  theme_bw() + 
+  xlab("DALYs averted per $1000") + 
+  ylab("Interventions") + 
+  scale_x_continuous(trans = 'log', breaks = 10^((-5):4)) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+grid.arrange(plot1, plot2, ncol=2)
+CEA$logDalyPerThousand <- log(CEA$DalyPerThousand)
+```
+
+```{r, echo=F, cache=T}
+aggregated_countries <- do.call(data.frame, 
+                                (aggregate(logDalyPerThousand ~ Country, CEA, 
+                                           FUN = function(x) c(mu = mean(x), sd = sd(x) ) )))
+country_count <- data.frame(table(CEA$Country))
+colnames(country_count) <- c("Country", "Studies")
+aggregated_countries <- left_join(aggregated_countries, country_count, by=c("Country"))
+colnames(aggregated_countries) <- c("Country", "mu", "sd", "Studies")
+grand_mean <- mean(CEA$logDalyPerThousand)
+grand_var <- var(CEA$logDalyPerThousand)
+
+aggregated_countries$adjustedDalyPerThousand <- 1 / (1 / grand_var + aggregated_countries$Studies / 
+                                                       aggregated_countries$sd) * 
+  (grand_mean / grand_var + aggregated_countries$mu * aggregated_countries$Studies / aggregated_countries$sd)
+
+high_val <- cbind("County" = aggregated_countries$Country[order(aggregated_countries$adjustedDalyPerThousand, decreasing = T)[1:5]],
+                "Adjusted DALYs averted per $1000" = round(exp(aggregated_countries$adjustedDalyPerThousand[order(aggregated_countries$adjustedDalyPerThousand, decreasing = T)[1:5]]), 2),
+                "Studies" = aggregated_countries$Studies[order(aggregated_countries$adjustedDalyPerThousand, decreasing = T)[1:5]])
+
+knitr::kable(high_val)
+
+low_val <- cbind("County" = aggregated_countries$Country[order(aggregated_countries$adjustedDalyPerThousand, decreasing = F)[1:5]],
+                "Adjusted DALYs averted per $1000" = round(exp(aggregated_countries$adjustedDalyPerThousand[order(aggregated_countries$adjustedDalyPerThousand, decreasing = F)[1:5]]), 3),
+                "Studies" = aggregated_countries$Studies[order(aggregated_countries$adjustedDalyPerThousand, decreasing = F)[1:5]])
+
+knitr::kable(low_val)
+```
+
+<!-- 1: Let $T_n\sim t_n$. Show that the $T_n\xrightarrow{d}\mathcal{N}(0,1)$. -->
+
+<!-- The representation of a $T_n$ random variable is $$\frac{Z}{\sqrt{V_n/n}}, \;\;Z\sim\mathcal{N}(0,1), \;\;V_n\sim\chi^2_n$$ -->
+<!-- A Chi-squared random variable can be represented as a sum of squared standard Normals: $V_n=\sum_{i=1}^nZ_i^2$, so $V_n/n\xrightarrow{p}E(Z_1^2)=1$.  Then, by the continuous mapping theorem, $\frac{1}{\sqrt{V_n/n}}\xrightarrow{p}1$.  Thus, by Slutsky's, $$\frac{Z}{\sqrt{V_n/n}}=Z\cdot\frac{1}{\sqrt{V_n/n}}\xrightarrow{d}\mathcal{N}(0,1)$$ -->
+
+1. Suppose we have two independent groups each with many independent observations: $X_{1,1},...,X_{1,n_1}\sim\mathcal{LN}(\mu_1,\sigma^2_1)$ and $X_{2,1},...,X_{2,n_2}\sim\mathcal{LN}(\mu_2,\sigma^2_2)$ where $n_1$ and $n_2$ are large.  Let $Y_{i,j}=\log(X_{i,j})$, so the $Y_{i,j}$ are distributed Normally.  Write the distribution of $\bar{Y}_1-\bar{Y}_2$, and use this to write an approximate 95\% confidence interval for $\mu_1-\mu_2$.  Assume all the parameters are unknown.
+
+\vspace{6cm}
+
+2. Let $M_{X,1}$ be the median of the $X_{1,i}$s and $M_{X,2}$ be the median of the $X_{2,i}$s.  Construct an approximate 95\% confidence interval for $M_{X,1}/M_{X,2}$.  (Hint: what is the relationship between a median and mean in a Normal distribution?)
+
+\vspace{5cm}
+
+# Break
+
+\newpage
+
+# Section 7: Hypothesis testing
+
+**Null and alternative hypotheses**: Consider a partition of the parameter space $\Theta$ into two disjoint sets $\Theta_0$ and $\Theta_1$ such that $\Theta=\Theta_0\cup \Theta_1$.  Then, $H_0:\theta\in \Theta_0$ and $H_a:\theta\in\Theta_1$.
+
+- Note: The null hypothesis is what we want to disprove.
+
+- **One-sided**: ___________________
+
+- **Two-sided**: ____________________
+
+- **Simple hypothesis**: $\Theta_0=\{\theta_0\}$.
+
+- **Composite hypothesis**: $\Theta_0$ is an interval or intervals.
+
+- Example: Let $Y_1,...,Y_n\sim\mathcal{N}(\mu,\sigma^2)$ and consider the hypotheses $H_0: \mu=0$ vs. $H_a:\mu\neq 0$ (this is a two-sided simple hypothesis).
+
+**Rejection region**: A subset $R$ of the range of data $\vv{y}$ such that we reject $H_0$ if $\vv{y}\in R$ and fail to reject $H_0$ if $y\not\in R$.
+
+- Strategy: Find a **test statistic** $t(\vv{Y})$ and use the rejection region $R=\{\vv{y}:t(\vv{y})>c\}$ (one-sided) or $R=\{\vv{y}:t(\vv{y})<c_L\textrm{ or } t(\vv{y})>c_U\}$ for **critical values** $c,c_L,c_U$.
+
+- Strategy: The test statistic should have a known distribution (commonly Normal, student-$t$, Gamma, or Binomial).
+
+- Note: Iff the data is in the rejection region, the corresponding confidence interval ___________ contain $\theta_0$.
+
+- Example: Using the $Y_i$ above, consider the test statistic $t(\vv{Y})=\frac{\bar{Y}}{\sqrt{\hat{\sigma}^2/n}}$.  Under the null, this has a $t_{n-1}$ distribution, so the critical value is $c_U=-c_l=$__________, and the rejection region is $R=\{\vv{y}:\left|\frac{\bar{y}}{\sqrt{\hat{\sigma}^2/n}}\right|>$___________$\}$.
+
+**Type I error**: __________ the null when the null is ______
+
+- Strategy: Controlled by $\alpha$ level of the test.
+
+**Type II error**: ___________ the null when the null is ______
+
+**Power**: Probability of rejecting the null, $\beta(\theta)=P(\vv{Y}\in R|\theta)$.
+
+- Strategy: If $\theta\in\Theta_1$, $\beta(\theta)=1-P(\textrm{Type II error})$.
+
+- Strategy: If $\theta\in\Theta_0$, $\beta(\theta)=P(\textrm{Type I error})$, which we try to fix at $\alpha$.
+
+**P-value**: If $R_\alpha$ is the rejection region for a test with a Type I error rate of $\alpha$, the p-value is the smallest $\alpha$ at which we reject $H_0$: $p=\inf\{\alpha:t(\vv{y})\in R_\alpha\}$.
+
+- In words: The probability of obtaining data as or more extreme than the observed data under the null.
+
+- Strategy: For a particular $\alpha$, if the p-value is less than $\alpha$, we reject $H_0$.
+
+- Biohazard: Not the probability $H_0$ is true.
+
+- Fact: In a two-sided test of $H_0:\theta=\theta_0$ vs. $H_a:\theta\neq \theta_0$ with a continuously distributed $t(\vv{Y})$, the p-value is __________________ under the null.
+
+- $p$-hacking: Testing many hypothesis increases the probability of observing a low p-value by chance.
+
+- Example: With the $Y_i$ above, the p-value would be _______________
+
+**Asymptotic tests**: For sufficiently large $n$ and $H_0:\theta=\theta_0$, $H_a:\theta\neq \theta_0$:
+
+1. **Wald test**: $\sqrt{n\mathcal{I}_1(\theta_0)}(\hat{\theta}-\theta_0)\xrightarrow{d}\mathcal{N}(0,1)$, so reject the null if $$\left|\sqrt{n\mathcal{I}_1(\theta_0)}(\hat{\theta}-\theta_0)\right|>$$
+
+2. **Score test**: $\frac{S(\vv{Y},\theta_0)}{\sqrt{n\mathcal{I}_1(\theta_0)}}\xrightarrow{d}\mathcal{N}(0,1)$, so reject the null if $$\left|\frac{S(\vv{Y},\theta_0)}{\sqrt{n\mathcal{I}_1(\theta_0)}}\right|>$$
+
+3. **Likelihood ratio test**: Let $$\Lambda(\vv{Y})=2\log\left(\frac{L(\hat{\theta};\vv{Y})}{L(\theta_0;\vv{Y})}\right)$$ where $\hat{\theta}$ is the MLE for $\theta$.  Under regularity conditions, $\Lambda(\vv{Y})\xrightarrow{d}\chi^2_1$, so reject the null if $$2\log\left(\frac{L(\hat{\theta};\vv{Y})}{L(\theta_0;\vv{Y})}\right)>$$
+
+- In words: If the likelihood is much higher under $\hat{\theta}$ than under the null, we have evidence to reject the null.
+
+# Problem 4
+
+Many development economists have argued that cost-sharing, charging a much-reduced but non-zero price for healthcare resources, is necessary to avoid wasting the resources on people who do not need them.  In their 2010 paper "[Free Distribution or Cost-Sharing?  Evidence from a Randomized Malaria Prevention Experiment](https://web.stanford.edu/~pdupas/CohenDupas.pdf)," Jessica Cohen and Pascaline Dupas claim to show there is no evidence that cost-sharing reduces wastage of Insecticide Treated Nets (used to prevent malaria).  However, they show that cost-sharing does significantly decrease demand for ITNs.  Part of the study involved randomizing the cost of ITNs at rural Kenyan health clinics for pregnant women and tracking ITN sales.  Four prices were used (\$0, \$0.15, \$0.30, and \$0.60) at multiple clinics each.  We want to perform a regression for predicting net sales from the price charged to see if there is an association.
+
+<!--The original data is available [here](http://web.stanford.edu/~pdupas/).-->
+
+1. Let $Y_i|X_i=x_i\sim\mathcal{N}(\theta x_i,\sigma_\epsilon^2)$ for $i\in\{1,...,n\}$.  Suppose the data comes in $k$ groups $S_1,...,S_k$ so that all the predictors (the $X_i$) in a group are the same (define this as $x_i=x'_j$ for $i\in S_j$).  Let $\bar{Y}_j$ be the mean of $Y_i$s in group $j$ ($\bar{Y}_j=\frac{1}{n_j}\sum_{i:i\in S_j}Y_i$), $\hat\sigma_j^2$ be the MLE variance of the $Y_i$ in group $j$ ($\hat\sigma_j^2=\frac{1}{n_j}\sum_{i:i\in S_j}(Y_i-\bar{Y}_j)^2=\frac{1}{n_j}\sum_{i:i\in S_j}(Y_i^2-\bar{Y}_j^2)$), and $n_j$ be the size of the group.  Show that $(\bar{Y}_1,...,\bar{Y}_k, \hat\sigma^2_1,...,\hat\sigma^2_k)$ is a sufficient statistic.  (Treat the $x_i$ and $n_j$ as known.  Also, it doesn't actually matter whether $\sigma_\epsilon^2$ is known or unknown, but you can treat it as known.)
+
+\vspace{5cm}
+
+2. Now consider the model $Y_i|X_i=x_i\sim\mathcal{N}(\theta_1 x_i+\theta_0,\sigma_\epsilon^2)$.  When $\theta_1=0$, the least squares estimate $\hat{\theta_1}$ has the distribution:
+$$\frac{\hat{\theta_1}}{\hat{\sigma}\sqrt{\frac{1}{\sum_{i=1}^nx_i^2}}}\sim t_{n-2},\;\;\hat{\sigma}^2=\frac{1}{n-2}\sum_{i-1}^n(y_i-(\hat{\theta_1}x_i+\hat{\theta_0}))^2$$
+Show how to conduct a hypothesis test for whether price has any effect on the number of ITNs sold.
+
+\vspace{3cm}
+
+#  8: Bayesian statistics
+
+**Bayes' rule**: $$f(\theta|\vv{y})=\frac{f(\vv{y}|\theta)f(\theta)}{f(\vv{y}|\theta)}\propto$$
+
+**Posterior distribution**: The distribution of $\theta|\vv{y}$.
+
+- Note: Compromise between the likelihood and the prior with weighting based on the sample size.
+
+- Example (Nickols section 8): Suppose we model COVID-19 deaths in a particular US county as $Y_i\sim\textrm{Pois}(c\lambda_in_i)$ where $c=3.23$ is the number of years included in the data set, $\lambda_i$ is the county's annual death rate from COVID-19, and $n_i$ is the county's population.  Also, suppose we use the prior $\lambda_i\sim\textrm{Gamma}(a,b)$ with $b=10^5$ and $a=0.001b$.
+
+<!--The data uses deaths from COVID-19 per county from January 1st, 2020 to March 25th, 2023 [available here](https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-in-the-United-St/kn79-hsxy) and 2020 county population numbers [available here](https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html).-->
+
+```{r, echo=F, fig.width=7, fig.height=3, fig.align='center', warning=F}
+covid_deaths <- read.csv("data/covid_deaths.csv")
+covid_deaths <- covid_deaths[!is.na(covid_deaths$population) & 
+                               !is.na(covid_deaths$deaths),]
+
+make_df_for_plot <- function(x, y, n) {
+  b = 100000
+  a = 0.001 * b
+  c = 3.23
+  
+  df <- data.frame(matrix(ncol = 3, nrow = 0))
+  df <- rbind(df, data.frame(lambda=x, density=dgamma(x, a, b), type="Prior"))
+  df <- rbind(df, data.frame(lambda=x, density=dgamma(x, sum(y)+1, c*n), type="Likelihood"))
+  df <- rbind(df, data.frame(lambda=x, density=dgamma(x, a + y, b + c*n), type="Posterior"))
+  colnames(df) <- c("lambda", "density", "type")
+  return(df)
+}
+
+x <- seq(0, 0.005, 0.000001)
+y <- covid_deaths$deaths[covid_deaths$county == "Middlesex County, Massachusetts"]
+n <- covid_deaths$population[covid_deaths$county == "Middlesex County, Massachusetts"]
+
+df <- make_df_for_plot(x, y, n)
+
+p1 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
+  geom_line() + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  ylab("Density") + 
+  theme_bw() + 
+  xlab("Lambda") +
+  theme(legend.position = "none") + 
+  ggtitle(("Middlesex (n=1632002)"))
+
+x <- seq(0, 0.005, 0.000001)
+y <- covid_deaths$deaths[covid_deaths$county == "Franklin County, Massachusetts"]
+n <- covid_deaths$population[covid_deaths$county == "Franklin County, Massachusetts"]
+
+df <- make_df_for_plot(x, y, n)
+
+p2 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
+  geom_line() + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  ylab("Density") + 
+  xlab("Lambda") +
+  theme_bw() + 
+  theme(legend.title = element_blank()) + 
+  ggtitle(("Franklin (n=71035)"))
+
+grid.arrange(p1, p2, ncol=2, widths=c(1,1.4))
+```
+
+```{r, echo=F, fig.width=7, fig.height=3, fig.align='center'}
+c = 3.23
+
+# Before adjustment
+covid_deaths$prior_rate <- covid_deaths$deaths/covid_deaths$population / c
+before_val <- cbind("County" = covid_deaths$county[order(covid_deaths$prior_rate, decreasing = T)[1:5]],
+                "Population" = covid_deaths$population[order(covid_deaths$prior_rate, decreasing = T)[1:5]],
+                "Rate (Unadjusted)" = round(covid_deaths$prior_rate[order(covid_deaths$prior_rate, decreasing = T)[1:5]], 4))
+
+# After adjustment
+b = 100000
+a = 0.001 * b
+
+covid_deaths$adjusted_rate <- (covid_deaths$deaths + a) / (b + c * covid_deaths$population)
+
+after_val <- cbind("County" = covid_deaths$county[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]],
+                "Population" = covid_deaths$population[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]],
+                "Rate (Adjusted)" = round(covid_deaths$adjusted_rate[order(covid_deaths$adjusted_rate, decreasing = T)[1:5]], 4))
+
+knitr::kable(before_val)
+knitr::kable(after_val)
+
+plot1 <- ggplot(covid_deaths, aes(x=population, y=prior_rate)) + 
+  geom_point() + 
+  scale_x_continuous(trans = 'log', breaks = 10^(3:8)) + 
+  xlab("Population") + 
+  ylab("COVID-19 Raw Death rate") + 
+  theme_bw()
+
+plot2 <- ggplot(covid_deaths, aes(x=population, y=adjusted_rate)) + 
+  geom_point() + 
+  scale_x_continuous(trans = 'log', breaks = 10^(3:8)) + 
+  xlab("Population") + 
+  ylab("COVID-19 Posterior Death rate") + 
+  theme_bw() + 
+  geom_hline(yintercept = a/b, col="red")
+
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+**Posterior predictive distribution**: The distribution of $Y_{n+1}|Y_1,...,Y_n$.
+
+**Point estimates**:
+
+- **Posterior mean**: $E(\theta|\vv{y})$, minimizes expected square loss $E((\theta-\tilde\theta)^2|\vv{y})$.
+
+- **Posterior median**: $Q_{\theta|\vv{y}}(0.5)$, minimizes expected absolute loss $E(|\theta-\tilde\theta||\vv{y})$.
+
+- **Posterior mode**: $\textrm{argmax}_\theta f(\theta|\vv{y})$.
+
+**Credible interval**: $[L(\vv{y}), U(\vv{y})]$ is a $1-\alpha$ credible interval if $P(L(\vv{y})\leq \theta\leq U(\vv{y}) |\vv{y})=1-\alpha$.
+
+- Strategy: Find the posterior distribution for $\theta$ and use the 2.5th and 97.5th quantiles.
+
+**Conjugacies**:
+
+- **Beta-Binomial**: Let $\theta\sim\textrm{Beta}(a,b)$ and $Y_i|\theta\sim\textrm{Bin}(n_i,\theta)$.  Then, $$\theta|\vv{Y}\sim$$
+
+- **Gamma-Poisson-Negative Binomial**: Let $\theta\sim\textrm{Gamma}(a,b)$ and $Y_i|\theta\sim\textrm{Pois}(\theta t_i)$.  Then, $\theta|\vv{Y}\sim$_______________________.  Also, $$Y_{n+1}|\vv{Y}\sim$$
+
+- **Normal-Normal**: Let $\mu\sim\mathcal{N}(\mu_0,\sigma_0^2)$ and $Y_i|\mu\sim\mathcal{N}(\mu,\sigma_i^2)$ with $\sigma_0^2,\mu_0,\sigma_i^2$ known.  Then, $\mu|\vv{Y}\sim\mathcal{N}(\mu_n,\tau_n^2)$ where $$\tau_n^2=\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\mu_n=$$ Also, $$Y_{n+1}|\vv{Y}\sim$$
+
+#  9: Risk, James Stein
+
+**Loss function**: A convex function $C(\theta,\hat{\theta})\geq 0$ with the property that $C(x,x)=0$ for all $x$.
+
+- In words: How bad is it to guess $\hat{\theta}$ when the true value is $\theta$.
+
+**Risk function**: $r_{\hat{\theta}}(\theta)=E(C(\theta,\hat\theta)|\theta)$.
+
+**Admissibility**: An estimator $\hat{\theta}$ is inadmissible if there is some other $\tilde{\theta}$ such that, for all $\theta$, $r_{\tilde\theta}(\theta)\leq r_{\hat\theta}(\theta)$ with strict inequality for some $\theta$.  Otherwise, the estimator is admissible.
+
+**James-Stein Estimator**: Let independent $Y_i|\mu_i,V\sim\mathcal{N}(\mu_i,V)$ for $i=1,...,k$ with $k\geq 3$ and $V$ known.  Let $\mu=(\mu_1,...,\mu_k)$ and $\hat{\mu}=(Y_1,...,Y_k)$.  Using squared loss $C(\mu,\hat{\mu})=\sum_{i=1}^k(\mu_i-\hat{\mu_i})^2$, $\hat{\mu}$ is inadmissible.  $\hat{\mu}$ can be dominated by $$\hat\mu_{i,JS}=$$ where $S=$__________.
+
+- Example: Estimates of entire-season batting averages as predicted by early-season batting averages can be improved by shrinking estimates towards the grand mean.
+
+#  10: Sampling
+
+**Survey sampling**: Suppose the population is of size $N$ and let the variables of interest $y_1,...y_N$ be fixed.  The population estimands are $\mu=\frac{1}{N}\sum_{i=1}^Ny_i$, and $\sigma^2=\frac{1}{N}\sum_{i=1}^N(y_i-\mu)^2$.
+
+**Simple random sample (SRS) with replacement**: Sample $n$ items (with replacement) from the $N$ total and call these sampled observations $Y_1,...,Y_n$.  Consider the estimator $\hat{\mu}=\bar{Y}$.
+
+- Fact: $E(Y_i)=\mu$, $\textrm{Var}(Y_i)=\sigma^2$, $\textrm{Cov}(Y_i,Y_j)=0$.
+
+- Fact: $E(\hat{\mu})=$_____, $\textrm{Var}(\hat{\mu})=$_____.
+
+**SRS without replacement**: Sample $n$ items (without replacement) from the $N$ total and call these sampled observations $Y_1,...,Y_n$.  Consider the estimator $\hat{\mu}=\bar{Y}$.
+
+- Fact: $E(Y_i)=\mu$, $\textrm{Var}(Y_i)=\sigma^2$, $\textrm{Cov}(Y_i,Y_j)=$________.
+
+- Fact: $E(\hat{\mu})=$_____, $\textrm{Var}(\hat{\mu})=$________________ (___________ is the finite population correction).
+
+**Stratified sampling**: Divide the population into $K$ strata such that $\sum_{i=1}^KN_i=N$ where the $N_i$ are known, and let $\mu_i$ and $\sigma_i^2$ be the mean and variance of stratum $i$.  Take a sample of $n_i$ from stratum $i$ for each $i$.  Consider the estimator of the overall mean $\hat{\mu}=\sum_{i=1}^K\frac{N_i}{N}\bar{Y}_i$.
+
+- Fact: $$E(\hat{\mu})=\mu,\;\textrm{Var}(\hat{\mu})=\sum_{i=1}^K\left(\frac{N_i}{N}\right)^2\frac{\sigma_i^2}{n_i}\frac{N_i-n_i}{N_i-1}$$
+
+- Fact: This variance is minimized when $n_i/n\propto N_i\sigma_i$.
+
+**Horvitz-Thompson (HT) estimator**: Let $\tau=\sum_{i=1}^Ny_i$ be the estimand.  If we take a sample $S=\{Y_1,...,Y_n\}$, the HT estimator is $$\hat{\tau}=$$ where $I_i$ is an indicator of item $y_i$ being sampled.
+
+- Fact: $E(\hat{\tau})=\tau$.
+
+- Strategy: If we want to estimate $\mu$, divide by $N$.
+
+- Strategy: The first sum makes it easier to prove results; the second is easier to use in practice.
+
+- Note: The HT estimator is unbiased, but it does not necessarily have low variance ([Basu's elephants](https://www.umass.edu/cluster/ed/unpublication/yr2000/c00ed72.PDF)).
+
+# Problem 5
+
+In simple one-stage cluster sampling, the original population is divided into (supposedly representative) clusters $S_i$, one cluster is sampled, and every item in the cluster is sampled.  Suppose there are $k$ clusters with $N_i$ items in cluster $i$ and $N$ items total.  We want to estimate the overall mean $\mu=\frac{1}{N}\sum_{j=1}^Ny_j$.  A cluster is sampled with a probability proportional to its size, everyone in the cluster (say, cluster $i$) is sampled, and the estimator $\hat\mu=\bar{y}_i=\frac{1}{N_i}\sum_{j:y_j\in S_i}y_j$ (the sample mean of the cluster) is used to estimate $\mu$.
+
+1. Is this the Horvitz Thompson estimator?  If so, prove it.  If not, find one.
+
+\vspace{4cm}
+
+2. Find the variance of this estimator.
+
+\vspace{5cm}
+
+3. Verify that the variance makes sense in the special cases of $N_1=...=N_k=1$ (each item is its own cluster) and $\bar{y}_i=\mu$ (each cluster is perfectly representative of the overall mean).
+
+\vspace{3cm}
+
+#  11: Resampling
+
+**Non-parametric bootstrap**: Sample $n$ values from the observed data $Y_1,...,Y_n$ with replacement many times and calculate the estimator $\hat\theta^*_b$ for each sample.  The bias of the estimator is estimated with $(\frac{1}{B}\sum_{b=1}^B\hat\theta^*_b)-\hat{\theta}$, and the standard error is estimated with 
+$$\widehat{\textrm{SE}(\hat{\theta})}=\sqrt{\frac{1}{B-1}\sum_{b=1}^B(\hat\theta^*_b-\overline{\hat{\theta}^*})^2}$$
+**Bootstrap confidence interval**: We can use the non-parametric bootstrap to construct a confidence interval in the following ways:
+
+1. **Normal approximation**: $\hat{\theta}\pm Q_{\mathcal{N}(0,1)}(1-\alpha/2)\widehat{\textrm{SE}(\hat{\theta})}$
+2. **Percentile interval**: Use the empirical $\alpha/2$ and $1-\alpha/2$ quantiles of the bootstrapped $\theta^*_b$
+3. **Bootstrap t interval**: Approximate the distribution of $T=\frac{\hat{\theta}-\theta}{\widehat{\textrm{SE}(\hat{\theta})}}$ with $$T^*=\frac{\hat{\theta}^*-\hat\theta}{\widehat{\textrm{SE}(\hat{\theta}^*)}}$$ Since $\widehat{\textrm{SE}(\hat{\theta}^*)}$ is usually unknown, we can run an additional layer of bootstrapping to estimate it.  The bootstrapped interval is then $\left[\hat{\theta}-\hat{Q}^*(0.975)\widehat{\textrm{SE}(\hat{\theta})}, \hat{\theta}-\hat{Q}^*(0.025)\widehat{\textrm{SE}(\hat{\theta})}\right]$ where $\hat{Q}^*$ is the bootstrapped quantile of $T^*$.
+
+**Permutation testing**: Suppose we have $X_1,...,X_m\sim F_{X}$ and $Y_1,...,Y_n\sim F_Y$ and we want to test $H_0:F_X=F_Y$ vs $H_a:F_X\neq F_Y$.  To run a permutation test, we choose a test statistic $T(\vv{X}, \vv{Y})$, compute the observed value of the test statistic $t_0$ from the data, permute the observations between groups keeping the sample sizes the same as originally and compute $t^*$ for each many times, and find the proportion of times the $t^*$ was as or more extreme than $t_0$.  This proportion is the p-value.
+
+- Note: $T$ is often chosen to be the difference in sample means.
+
+#  12: Causal inference
+
+**Assignment**: The assignment $W_j$ is 1 if subject $j$ is in the treatment group and 0 otherwise.
+
+**Potential outcomes**: $Y_j(w_1,...,w_n)$.
+
+- In words: The outcome for patient $Y_j$ if the assignments were $w_1,...,w_n$.
+
+**Treatment effect**: $\tau_j=Y_j(w_1,...,w_n)-Y_j(w_1',...,w_n')$ is the effect of moving from one assignment to another.
+
+**Non-interference**: The assignment of others has no effect on the potential outcomes of a particular subject: $Y_j(w_1,...,w_n)=Y_j(w_j)$.
+
+**Assignment mechanism**: $P(\vv{W}=\vv{w}|\vv{Y(0)}, \vv{Y(1)})$.
+
+- In words: The joint PMF of assignments given the potential outcomes.
+
+- Fact: In RCTs, $P(\vv{W}=\vv{w}|\vv{Y(0)}, \vv{Y(1)})=$______________; in observational studies, this is not necessarily the case.  Note that this is not saying $W\indep Y$.
+
+**Switching equation**: $$Y=$$
+
+**Unconfoundedness**: _____________________ given $\vv{X}$.
+
+**Population model**: Assume $\{W_1, Y_1(0), Y_1(1)\},...,\{W_n, Y_n(0), Y_n(1)\}$ are independent (all three are random) and we condition on $\vv{W}$ in an RCT.  The estimand is $E(\tau_1)=E(\tau_j)$ when the triples are i.i.d.
+
+- Fact: If the triples are i.i.d. and the outcomes are binary, the MLE treatment effect given $\vv{w}$ is: $$\widehat{E(\tau_1)}=\frac{\sum_{i=1}^nw_iY_i}{\sum_{i=1}^nw_i}-\frac{\sum_{i=1}^n(1-w_i)Y_i}{\sum_{i=1}^n(1-w_i)}$$
+This estimator is unbiased and has variance: 
+$$\textrm{Var}\left(\widehat{E(\tau_1)}\right)=\frac{\theta_1(1-\theta_1)}{\sum_{i=1}^nw_i}-\frac{\theta_0(1-\theta_0)}{\sum_{i=1}^n(1-w_i)}$$ where $\theta_0=P(Y_i=1|W_i=0)$ and $\theta_1=P(Y_i=1|W_i=1)$.
+
+**Finite sample**: In the finite sample setting, we treat the $y_j(0)$ and $y_j(1)$ as fixed, and the randomness comes from the $W_j$.  Assume the assignments are independent of the potential outcomes.  The estimand is $\hat\tau=\frac{1}{n}\sum_{i=1}^n(y_j(1)-y_j(0))$.
+
+- Fact: The Method of Moments estimator is $$\hat{\tau}_{\textrm{MOM}}=\frac{1}{n}\sum_{i=1}^n\left(\frac{W_jY_j}{E(W_j)}-\frac{(1-W_j)Y_j}{E(1-W_j)}\right)$$ This is unbiased and has conditional variance: $$\textrm{Var}(\hat{\tau}|\vv{Y(0)}=\vv{y(0)},\vv{Y(1)}=\vv{y(1)})=\frac{1}{n^2}\sum_{i=1}^n\left(\frac{y_i^2(1)}{E(W_i)}+\frac{y_i^2(0)}{E(1-W_i)}-(y_i(1)-y_i(0))^2\right)$$
+
+**Fisher null**: For testing the finite sample treatment effect, $H_0:\tau_j=0$ for all $j$ vs $H_a:\tau_j\neq 0$ for at least one $j$.
+
+- Strategy: Fisher's null implies ____________, so we can use a permutation test for $\hat{\tau}_{\textrm{MOM}}$, which we now call a **randomization test**.
+
+**Neyman's null**: $H_0:\bar{\tau}=0$ vs. $H_a:\bar{\tau}\neq 0$.
+
+# Problem 6
+
+In randomized control trials, it is sometimes the case that the treatment group does not actually take the treatment.  Suppose that everyone assigned the non-treatment does not use the treatment, but suppose that each person assigned the treatment uses the treatment with probability $p$.  In particular, let $W_i$ be the indicator of whether the person actually took the treatment and $T_i$ be the indicator of whether the person was assigned the treatment.  Assume the $(W_i,Y_i(1),Y_i(0),T_i)$ quadruplets are i.i.d. across $i$ and that the study is randomized.  Also, assume that whether someone complies with the treatment is independent of the person's potential outcomes.  The average treatment effect for the population is still $E(\tau_1)=E(Y_1(1)-Y_1(0))$.
+
+1. Assuming we observe the $T_i$ and $Y_i$ but not the $W_i$, find the bias of the usual estimator $$\widehat{E(\tau_1)}=\frac{\sum_{i=1}^nY_it_i}{\sum_{i=1}^nt_i}-\frac{\sum_{i=1}^nY_i(1-t_i)}{\sum_{i=1}^n(1-t_i)}$$
+Use this to make an unbiased estimator.  Assume we know $p$.  (We could estimate $p$ from an in-depth follow-up study to check compliance in a subset of the individuals.)
+
+\vspace{4cm}
+
+2. Where did your derivation assume someone's compliance is independent of the person's potential outcomes?  Why is this assumption important?
+
+\vspace{2cm}
+
+3. In a [study conducted from 1993-1995](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1365-3156.1996.tb00020.x) that evaluated the impact of insectiside treated nets (ITNs) on child mortality, there were 396 deaths per 16841.1 child-years in the groups that were provided ITNs and 461 deaths per 16494.8 child-years in the control groups.  Compliance (proper usage of the nets) was assessed by surprise visits from a healthcare worker, and compliance varied over the course of the study, but assume the compliance was approximately 72\%.  What is the estimated effect of using ITNs on child mortality?
+
+\vspace{3cm}
+
+# One last thing...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
