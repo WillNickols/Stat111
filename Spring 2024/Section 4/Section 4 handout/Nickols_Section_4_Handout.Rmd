@@ -7,6 +7,9 @@ header-includes:
 - \usepackage{tcolorbox}
 - \usepackage{fancyhdr}
 - \usepackage[utf8]{inputenc}
+- \usepackage{wrapfig}
+- \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -17,8 +20,16 @@ urlcolor: blue
 \rfoot{Page \thepage}
 
 # Announcements
-- Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of what section questions are useful for what pset questions afterwards)
-- Pset 4 due Friday 2/24
+
+\begin{wrapfigure}{r}{0.12\textwidth}
+  \centering
+    \vspace*{-1.3cm}
+    \includegraphics[width=\linewidth]{section_qr_code.png}
+\end{wrapfigure}
+
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+
+Pset 4 due...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -75,104 +86,96 @@ p2 <- ggplot(temps_diff, aes(x = diff)) +
 grid.arrange(p1, p2, ncol=2, widths = c(1.6,1))
 ```
 
-In this problem, we'd like to determine whether daily minimum temperatures are significantly different between Boston and Chicago.  To do this, we'll explore the student-$t$ distribution and confidence intervals.  Our strategy will be to find the null distribution of some statistic assuming the true difference is 0 and then see how likely we are to have observed the crystallized version of that statistic under the null.
+In this problem, we'd like to determine whether daily minimum temperatures are significantly different between Boston and Chicago. To do this, we'll explore the student-$t$ distribution and confidence intervals. Our strategy will be to find the null distribution of some statistic assuming the true difference is 0 and then see how likely we are to have observed the crystallized version of that statistic under the null.
 
-1. Let $Y_1,...,Y_n\sim\mathcal{N}(0,\sigma^2)$ i.i.d. with $n=8091$.  Find the distribution of $\bar{Y}$ assuming $\sigma^2$ is known, and use that to give a standardized distribution for $\bar{Y}$.
+1. Let $Y_1,...,Y_n\sim\mathcal{N}(0,\sigma^2)$ i.i.d. with $n=8091$. Find the distribution of $\bar{Y}$ assuming $\sigma^2$ is known, and use that to give a standardized distribution for $\bar{Y}$.
 
-\vspace{3cm}
+\vspace{2 cm}
 
-2. Let $S^2=\frac{1}{n-1}\sum_{i=1}^n(Y_i-\bar{Y})^2$ be the sample variance.  Then, by 10.4.3 in the Stat 110 book, $\frac{(n-1)S^2}{\sigma^2}\sim\chi_{n-1}^2$.  Show that the sample variance is independent of the sample mean by using facts about Multivariate Normals and the vector $(\bar{Y}, Y_1-\bar{Y},...,Y_n-\bar{Y})$.  (Hint: In a MVN vector, zero covariance implies independence.  Also, a function of a random vector independent of a random variable is also independent of the random variable.)
+2. Let $S^2=\frac{1}{n-1}\sum_{i=1}^n(Y_i-\bar{Y})^2$ be the sample variance. Then, by 10.4.3 in the Stat 110 book, $\frac{(n-1)S^2}{\sigma^2}\sim\chi_{n-1}^2$. Show that the sample variance is independent of the sample mean by using facts about Multivariate Normals and the vector $(\bar{Y}, Y_1-\bar{Y},...,Y_n-\bar{Y})$. (Hint: In a MVN vector, zero covariance implies independence. Also, a function of a random vector independent of a random variable is also independent of the random variable.)
 
-\vspace{6cm}
+\vspace{5 cm}
 
-3. Using the results above, write a function of $\bar{Y}$ and $S^2$ that has the $t_{n-1}$ distribution (this is our pivot).  Recall that the $t_n$ distribution is defined as $\frac{Z}{\sqrt{V/n}}$ where $Z\sim\mathcal{N}(0,1)$ and $V\sim\chi_{n}^2$ are independent.
+3. Using the results above, write a function of $\bar{Y}$ and $S^2$ that has the $t_{n-1}$ distribution (this is our pivot). Recall that the $t_n$ distribution is defined as $\frac{Z}{\sqrt{V/n}}$ where $Z\sim\mathcal{N}(0,1)$ and $V\sim\chi_{n}^2$ are independent.
 
-\vspace{4cm}
+\vspace{4 cm}
 
-4. In terms of a CDF $F$, determine $P\left(\frac{\bar{Y}}{\sqrt{S^2/n}}>\tau\right)$ for a fixed $\tau$.  Describe what this probability means in the context of the problem.
+4. In terms of a CDF $F$, determine $P\left(\frac{\bar{Y}}{\sqrt{S^2/n}}>\tau\right)$ for a fixed $\tau$. Describe what this probability means in the context of the problem.
 
-\vspace{4cm}
+\vspace{2 cm}
 
 5. Using the pivot, find a $95\%$ confidence interval for $0$ and interpret what this means.
 
-\vspace{4cm}
+\vspace{4 cm}
 
-6.  Using the data, compute this interval.
+6. The following is the previous interval computed from the data. Based on the interval, comment on whether it seems likely that the data follow the stated distribution (i.e. that the true mean difference is 0).
 
-```{r}
-# TODO: Compute the interval
+```{r, echo=F}
+n <- dim(temps_diff)[1]
+lb = qt(0.025, n-1) * sqrt(var(temps_diff$diff)/n) - mean(temps_diff$diff)
+ub = qt(0.975, n-1) * sqrt(var(temps_diff$diff)/n) - mean(temps_diff$diff)
+outputs <- c(lb, ub)
+names(outputs) <- c("Lower bound", "Upper bound")
+outputs
 ```
 
-7. Based on your interval, comment on whether it seems likely that the data follows the stated distribution (i.e. that the true mean difference is 0).
+\vspace{2 cm}
 
-\vspace{3cm}
+7. Show that $t_n\xrightarrow{d} Z$ with $Z\sim\mathcal{N}(0,1)$ as $n\rightarrow\infty$. (Hint: write the denominator as a sum of squared random variables and apply asymptotic tools.)
 
-8. Show that $t_n\xrightarrow{d} Z$ with $Z\sim\mathcal{N}(0,1)$ as $n\rightarrow\infty$.  (Hint: write the denominator as a sum of squared random variables and apply asymptotic tools.)
+\vspace{4 cm}
 
-\vspace{5cm}
+8. How close is the $t_{n-1}$ interval above to an interval using the Standard Normal? Why?
 
-9. How close is the $t_{n-1}$ interval above to an interval using the Standard Normal?
-
-```{r}
-# TODO: Calculate the Standard Normal interval
+```{r, echo=F}
+n <- dim(temps_diff)[1]
+lb = qnorm(0.025) * sqrt(var(temps_diff$diff)/n) - mean(temps_diff$diff)
+ub = qnorm(0.975) * sqrt(var(temps_diff$diff)/n) - mean(temps_diff$diff)
+outputs <- c(lb, ub)
+names(outputs) <- c("Lower bound", "Upper bound")
+outputs
 ```
 
-10. Now, assume we have $Y_i\sim\mathcal{N}(\mu,\sigma^2)$ with $\sigma^2$ known.  We have seen before that $\bar{Y}$ is the unbiased MLE for $\mu$.  Does $\bar{Y}$ achieve the Cramér-Rao lower bound?  (The Cramér-Rao lower bound is the reciprocal of the Fisher information for the dataset for $\mu$.)
+\vspace{1 cm}
 
-\vspace{5cm}
+9. Now, assume we have $Y_i\sim\mathcal{N}(\mu,\sigma^2)$ with $\sigma^2$ known. We have seen before that $\bar{Y}$ is the unbiased MLE for $\mu$. Does $\bar{Y}$ achieve the Cramér-Rao lower bound?  (The Cramér-Rao lower bound is the reciprocal of the Fisher information for the dataset for $\mu$.)
+
+\vspace{5 cm}
 
 \newpage
 # Uniformity
 
-1. [One fast way](https://en.wikipedia.org/wiki/Irwin%E2%80%93Hall_distribution) of computing Normal-like random variables is to take the sum of 12 $\textrm{Unif}(0,1)$ random variables and subtract $6$.  Find the expectation and variance of the resulting distribution and plot draws from it.
+1. [One fast way](https://en.wikipedia.org/wiki/Irwin%E2%80%93Hall_distribution) of computing Normal-like random variables is to take the sum of 12 $\textrm{Unif}(0,1)$ random variables and subtract $6$. Find the expectation and variance of the resulting distribution.
 
-\vspace{4cm}
-
-```{r, fig.height=2.5, fig.width=5, fig.align='center'}
-# TODO: Show draws
+```{r, fig.height=2.5, fig.width=5, fig.align='center', echo=F}
+df = data.frame(x = replicate(100000, sum(runif(12)) - 6))
+ggplot(df, aes(x = x)) + 
+  geom_histogram(bins=30, aes(y = after_stat(density))) + 
+  stat_function(fun = dnorm, args = c(0, 1), n = 100, col = "red") + 
+  theme_bw() + 
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank())
 ```
 
-2. Now, suppose you have $n$ $\textrm{Unif}(\alpha-\beta/2, \alpha+\beta/2)$ i.i.d. random variables.  Write the likelihood function for $\alpha$ and $\beta$.
+\vspace{4 cm}
 
-\vspace{3cm}
+2. Now, suppose you have $n$ $\textrm{Unif}(\alpha-\beta/2, \alpha+\beta/2)$ i.i.d. random variables. Write the likelihood function for $\alpha$ and $\beta$.
 
-3. For the case of $\alpha=10$ and $\beta=5$, simulate $n=100$ uniform random variables and use the `optim` function in R to estimate $\alpha$ and $\beta$ from starting guesses of $(20,100)$ by maximizing the likelihood function.  How do these compare to the true values?
+\vspace{3 cm}
 
-```{r, eval=F}
-set.seed(111)
-alpha = 10
-beta = 5
-n <- 100
-x <- runif(n, alpha - beta/2, alpha + beta/2)
+3. Consider trying to fine the MLE estimates with numerical optimization; that is, choose a starting point and iteratively evaluate the gradient of the log-likelihood and take a small step in that direction until the parameters stop updating. What might go wrong computationally?
 
-loglikelihood <- function(params) {
-  # TODO: Write log likelihood in a way that can be optimized
-}
+\vspace{5 cm}
 
-# Initial guess
-params <- c(20, 100)
+5. Another set of estimators is $\hat{\alpha}=Y_{(n/2+1/2)}$ and $\hat{\beta}=2(Y_{(n/2+1/2)}-Y_{(1)})$. Describe the logic of these estimators and then find their biases and variances. Assume $n$ is odd. (Note that $U_{(k)}-U_{(j)}\sim\textrm{Beta}(k-j, n-(k-j)+1)$ for Standard Uniforms.)
 
-# Run the optimization
-optimization <- optim(params, loglikelihood, method="L-BFGS-B", 
-                      control=list(fnscale=-1), lower=c(-Inf,0), upper=c(Inf,Inf))
-optimization$par
-```
-
-4. Find method of moments estimators for $\alpha$ and $\beta$ and see how well these perform on the simulated data.
-
-\vspace{4cm}
-
-```{r}
-# TODO: Compute these for the sample
-```
-
-5. Another set of estimators is $\hat{\alpha}=Y_{(n/2+1/2)}$ and $\hat{\beta}=2(Y_{(n/2+1/2)}-Y_{(1)})$.  Describe the logic of these estimators and then find their biases and variances.  Assume $n$ is odd.  (Note that $U_{(k)}-U_{(j)}\sim\textrm{Beta}(k-j, n-(k-j)+1)$ for Standard Uniforms.)
-
-\vspace{10cm}
+\vspace{10 cm}
 
 6. Make the $\hat{\beta}$ estimator unbiased.
 
-\vspace{3cm}
+\vspace{2 cm}
+
+
 
 
 

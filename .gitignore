@@ -1,2 +1,5 @@
 .DS_Store
 Section 7/Section 7 solutions/.Rhistory
+*.RData
+*.rdb
+*.rdx

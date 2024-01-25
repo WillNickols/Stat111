@@ -1,9 +1,12 @@
 ---
 output: pdf_document
 header-includes:
-   - \usepackage{tcolorbox}
-   - \usepackage{fancyhdr}
-   - \usepackage[utf8]{inputenc}
+- \usepackage{tcolorbox}
+- \usepackage{fancyhdr}
+- \usepackage[utf8]{inputenc}
+- \usepackage{wrapfig}
+- \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -14,8 +17,16 @@ urlcolor: blue
 \rfoot{Page \thepage}
 
 # Announcements
-- Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9)
-- Pset 1 due Friday 2/3
+
+\begin{wrapfigure}{r}{0.12\textwidth}
+  \centering
+    \vspace*{-1.3cm}
+    \includegraphics[width=\linewidth]{section_qr_code.png}
+\end{wrapfigure}
+
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+
+Pset 1 due...
 
 ```{r, echo=F, warning=F, message=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -28,20 +39,16 @@ library(gridExtra)
 
 # Molluscs
 
-This question will deal with a data set of country-level statistics from [this source](https://www.gu.se/en/quality-government/qog-data/data-downloads/standard-dataset) with an explanation of the data encoding found [here](https://www.qogdata.pol.gu.se/data/codebook_std_jan22.pdf).  
+This question will deal with a data set of country-level statistics from [this source](https://www.gu.se/en/quality-government/qog-data/data-downloads/standard-dataset) with an explanation of the data encoding found [here](https://www.qogdata.pol.gu.se/data/codebook_std_jan22.pdf). In particular, we'll be looking at the number of threatened species of molluscs (snails, clams, etc.).
 
-A few useful columns:
-
-- `bi_molluscs`: Number of threatened species of molluscs (snails, clams, etc.)
-
-```{r, include=F}
+```{r, include=F, echo=F}
 countries <- read.csv("data/countries.csv")
 
 # Subset only countries with less than 100 molluscs
 countries <- countries[countries$bi_molluscs < 100,]
 ```
 
-```{r, cache=T}
+```{r, cache=T, echo=F}
 p1 <- ggplot(countries, aes(x = bi_molluscs)) + 
   geom_histogram(bins = 100) + 
   theme_bw() + 
@@ -49,7 +56,7 @@ p1 <- ggplot(countries, aes(x = bi_molluscs)) +
   ylab("Count")
 
 # Narrow bandwidth
-dens <- density(countries$bi_molluscs, bw = 0.1)
+dens <- density(countries$bi_molluscs, bw = 0.2)
 p2 <- ggplot(data.frame(x = dens$x, y = dens$y), aes(x = x, y = y)) + 
   geom_line() + 
   theme_bw() + 
@@ -69,16 +76,16 @@ grid.arrange(p1, p2, p3, ncol = 2, nrow=2)
 
 1. What distribution does this seem to follow?  What are some advantages and disadvantages to each data visualization?
 
-$$\vspace{2cm}$$
+\vspace{2 cm}
 
-2. Let $Y_i$ be the number of endangered mollusk species in country $i$ for $i\in\{1,...,190\}$ and suppose $Y_i\sim \textrm{Geom}(p)$.  Find and plot the log likelihood function for $p$ given $y_1,...,y_{190}$.  (Note that PMFs and PDFs for all major distributions can be found in Appendix C of the Stat 110 book.)
+2. Let $Y_i$ be the number of endangered mollusk species in country $i$ for $i\in\{1,...,190\}$ and suppose $Y_i\sim \textrm{Geom}(p)$. Find the log likelihood function for $p$ given $y_1,...,y_{190}$. (Note that PMFs and PDFs for all major distributions can be found in Appendix C of the Stat 110 book.)
 
-$$\vspace{4cm}$$
+\vspace{5 cm}
 
-```{r, cache=T, eval=F}
+```{r, cache=T, echo=F, fig.width=3.5, fig.height=3.5, fig.align='center'}
 p <- seq(0.01, 1-0.01, 0.00005)
 
-logliks <- NA
+logliks <- 190 * log(p) + sum(countries$bi_molluscs) * log(1-p)
 
 ggplot(data.frame(p=p, logliks = logliks), aes(x=p, y=logliks)) + 
   geom_smooth(method='loess', span=0.001, formula = y~x) + 
@@ -87,72 +94,71 @@ ggplot(data.frame(p=p, logliks = logliks), aes(x=p, y=logliks)) +
   theme_bw()
 ```
 
-3. Find the $\hat{p}$ that maximizes your log likelihood function for general $y_i$ and for the data here.  Is this consistent with your plot above?
+3. Find the $\hat{p}$ that maximizes your log likelihood function for general $y_i$. In the dataset, $\sum_{i=1}^{190}y_i=1929$. Is this consistent with the plot above?
 
-$$\vspace{2cm}$$
-
-```{r}
-# TODO: Find specfic \hat{p} for the data
-```
+\vspace{4 cm}
 
 4. Express your $\hat{p}$ in terms of the sample mean $\bar{y}$ and relate this to the mean of a geometric distribution: $(1-p)/p$.
 
-$$\vspace{2cm}$$
+\vspace{2 cm}
 
-5. The result above implies that $\bar{y}$ contains as much information about $\hat{p}$ as all the $y_1,...y_{190}$ together.  However, intuitively, it seems like the standard deviation, the kurtosis, and all sorts of other features from the data might carry useful information.  How can this be?
+5. The result above implies that $\bar{y}$ contains as much information about $\hat{p}$ as all the $y_1,...y_{190}$ together. However, intuitively, it seems like the standard deviation, the kurtosis, and all sorts of other features from the data might carry useful information. How can this be?
 
-$$\vspace{2cm}$$
+\vspace{3 cm}
 
-6. In the process above, what is our estimand, what is our estimator, and what is our estimate?
+6. In the process above, what was our estimand, what was our estimator, and what was our estimate?
 
-$$\vspace{1cm}$$
+\vspace{2 cm}
 
-7. Suppose a new country is taking an endangered mollusk census.  Their initial data shows that the country has at least 15 endangered mollusk species.  Given this information, find the expected number of endangered mollusk species in the country.  Do this in two ways: first, calculate the expected value using a sum with conditioning; second, use a trick whose name I can't remember.
+7. Suppose a new country is taking an endangered mollusk census. Their initial data show that the country has at least 15 endangered mollusk species. Given this information, find the expected number of endangered mollusk species in the country. Do this in two ways: first, calculate the expected value using a sum with conditioning; second, use a trick with a name I can't remember.
 
-$$\vspace{8cm}$$
+\vspace{8 cm}
 
-# Random ~~walks~~ hops
+\newpage
+# Random ~~steps~~ slides
 
-We've all heard of random walks, but who really only steps on integers?  In this problem, we'll be exploring random hops in which a person, at time step $t$, takes a hop and ends up at a position $Y_t|Y_{t-1}\sim\mathcal{N}(Y_{t-1},\sigma^2)$ on the real number line.
+We've all heard of random walks, but who really only steps on integers?  In this problem, we'll be exploring random slides in which a person, at time step $t$, slides to the left or the right (but does not take it back now y'all) and ends up at a position $Y_t|Y_{t-1}\sim\mathcal{N}(Y_{t-1},\sigma^2)$ on the real number line.
 
-1. Suppose the person starts at $y_0=0$ and takes a series of $n$ hops.  Find the likelihood and log likelihood function for $\sigma^2$.  Which terms of the Normal density can be dropped?
+1. Suppose the person starts at $y_0=0$ and takes a series of $n$ slides. Find the likelihood and log likelihood function for $\sigma^2$. Which terms of the normal density can be dropped?
 
-$$\vspace{7cm}$$
+\vspace{7 cm}
 
 2. Find the value of $\sigma$ that maximizes the likelihood.
 
-$$\vspace{5cm}$$
+\vspace{4 cm}
 
 3. What are the estimand, estimator, and estimate here?
 
-$$\vspace{2cm}$$
+\vspace{2 cm}
 
 4. Find the bias of the estimator with an explicit calculation.
 
-$$\vspace{5cm}$$
+\vspace{5 cm}
 
 5. Use the law of large numbers to argue that this estimator converges towards $\sigma^2$ as $n\rightarrow\infty$.
 
-$$\vspace{4cm}$$
+\vspace{4 cm}
 
 6. Find the marginal distribution of $Y_n$.
 
-$$\vspace{2cm}$$
+\vspace{3 cm}
 
-7. Write a simulation with $n=10$ and $\sigma=2$ to verify that the marginal distribution is correct.  Draw Normal random variables according to the model with `rnorm` and compare it to the true marginal distribution from `dnorm`.
+7. We can write a simulation with $n=10$ and $\sigma=2$ to verify that the marginal distribution is correct. We'll draw Normal random variables according to the model with `rnorm` and compare them to the true marginal distribution from `dnorm`.
 
-```{r, eval=F}
+```{r, echo=F, fig.align='center', fig.height=3, fig.width=4}
 n <- 10
 sigma <- 2
 nsims <- 10^4
 
 run_simulation <- function() {
-  # TODO: Write a function to generate a single simulation draw
-  return (NA)
+  y <- 0
+  for (i in 1:n) {
+    y <- rnorm(1, y, sigma)
+  }
+  return (y)
 }
 
-# TODO: Repeat the simulation nsims times and store it in 'sim_out'
-sim_out <- NA
+sim_out <- replicate(nsims, run_simulation(), simplify = T)
 
 ggplot(data.frame(sim_out), aes(x = sim_out)) +
   geom_histogram(bins = 30, aes(y = after_stat(density))) +
@@ -162,19 +168,22 @@ ggplot(data.frame(sim_out), aes(x = sim_out)) +
   xlab("Value")
 ```
 
+
 8. Find a maximum likelihood estimator for $\sigma^2$ from this distribution.
 
-$$\vspace{8cm}$$
+\vspace{5 cm}
 
 9. What is the bias of this estimator?
 
-$$\vspace{2cm}$$
+\vspace{2 cm}
 
-10. What is the standard error of this estimator?  (You may find it useful to reparameterize $Y_n$ as $\sqrt{n\sigma^2}Z$ with $Z\sim\mathcal{N}(0,1)$.  The Normal moments from 6.5.2 may also be useful.)
+10. What is the standard error of this estimator?  (You may find it useful to reparameterize $Y_n$ as $\sqrt{n\sigma^2}Z$ with $Z\sim\mathcal{N}(0,1)$. The Normal moments from 6.5.2 may also be useful.)
 
-$$\vspace{5cm}$$
+\vspace{7 cm}
 
-11. We now have two estimators for the same estimand.  Describe when each might be preferable.
+11. We now have two estimators for the same estimand. Describe when each might be preferable.
+
+\vspace{2 cm}
 
 
 
