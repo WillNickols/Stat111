@@ -9,6 +9,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{wrapfig}
 - \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -26,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 10 due Friday 4/21
+Pset 10...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra", "reshape2", "dplyr")
@@ -43,9 +44,9 @@ library(dplyr)
 
 # Cost effectiveness in global health
 
-Significant work in economics and global health has gone into determining which healthcare interventions prevent the most suffering per dollar spent.  The metric of choice for these evaluations is the DALY, a disability adjusted life year.  When comparing interventions designed to save lives with those designed to improve lives, it is useful to have a metric that adjusts for the quality of life associated with various diseases and injuries, and the DALY attempts to do this.  For example, "severe motor impairment with blindness due to malaria" (being blind and unable to move around or sit up without help) has a weight of 0.512.  This means that avoiding a year of severe motor impairment with blindness is considered equivalent to avoiding 0.512 years of lost life.
+Significant work in economics and global health has gone into determining which healthcare interventions prevent the most suffering per dollar spent. The metric of choice for these evaluations is the DALY, a disability adjusted life year. When comparing interventions designed to save lives with those designed to improve lives, it is useful to have a metric that adjusts for the quality of life associated with various diseases and injuries, and the DALY attempts to do this. For example, "severe motor impairment with blindness due to malaria" (being blind and unable to move around or sit up without help) has a weight of 0.512. This means that avoiding a year of severe motor impairment with blindness is considered equivalent to avoiding 0.512 years of lost life.
 
-The [Tufts Medical Center Cost-Effectiveness Analysis Registry](https://cear.tuftsmedicalcenter.org/registry/download) aggregates academic literature on healthcare interventions and standardizes the results to compare different interventions.  This literature is notoriously variable and unstandardized, so the specific metrics for each intervention might not be accurate, but the general trends should provide some insight.
+The [Tufts Medical Center Cost-Effectiveness Analysis Registry](https://cear.tuftsmedicalcenter.org/registry/download) aggregates academic literature on healthcare interventions and standardizes the results to compare different interventions. This literature is notoriously variable and unstandardized, so the specific metrics for each intervention might not be accurate, but the general trends should provide some insight.
 
 ```{r, fig.height=4, fig.width=7, fig.align='center', echo=F, cache=T}
 set.seed(111)
@@ -74,9 +75,9 @@ grid.arrange(plot1, plot2, ncol=2)
 CEA$logDalyPerThousand <- log(CEA$DalyPerThousand)
 ```
 
-1.  Let $Y_1,...,Y_n$ be the cost-effectivenesses of the $n$ interventions.  Suppose we are interested in the ratio of the cost effectiveness of the 95th percentile intervention to the median intervention (call this ratio $\theta$).  Assuming the data are i.i.d. from a Log-Normal distribution with parameters $\mu$ and $\sigma^2$, find the MLE $\hat{\theta}$.
+1. Let $Y_1,...,Y_n$ be the cost-effectivenesses of the $n$ interventions. Suppose we are interested in the ratio of the cost effectiveness of the 95th percentile intervention to the median intervention (call this ratio $\theta$). Assuming the data are i.i.d. from a Log-Normal distribution with parameters $\mu$ and $\sigma^2$, find the MLE $\hat{\theta}$.
 
-Since the $Y_i$ are Log-Normal, $X_i=\log(Y_i)\sim\mathcal{N}(\mu,\sigma^2)$.  A ratio on the original scale corresponds to a difference on the log scale, and the log of a quantile is the quantile of a log, so $$\log(\theta)=\log(Q_{Y_i}(0.95))-\log(Q_{Y_i}(0.5))=(\sigma Q_Z(0.95) + \mu) - (\sigma Q_Z(0.5) + \mu)=\sigma Q_Z(0.95)$$ where $Q_Z$ is the quantile function for a standard Normal.  Therefore, by invariance, the MLE is
+Since the $Y_i$ are Log-Normal, $X_i=\log(Y_i)\sim\mathcal{N}(\mu,\sigma^2)$. A ratio on the original scale corresponds to a difference on the log scale, and the log of a quantile is the quantile of a log, so $$\log(\theta)=\log(Q_{Y_i}(0.95))-\log(Q_{Y_i}(0.5))=(\sigma Q_Z(0.95) + \mu) - (\sigma Q_Z(0.5) + \mu)=\sigma Q_Z(0.95)$$ where $Q_Z$ is the quantile function for a standard Normal. Therefore, by invariance, the MLE is
 $$\hat{\theta}=\exp\left(\hat\sigma Q_Z(0.95)\right) \;\textrm{with }\hat{\sigma}^2=\frac{1}{n}\sum_{i=1}^n\left(\log(Y_i)-\overline{\log(Y)}\right)$$
 ```{r, cache=T}
 exp(sqrt(var(CEA$logDalyPerThousand) * (nrow(CEA) - 1)/(nrow(CEA))) * qnorm(0.95))
@@ -84,9 +85,9 @@ exp(sqrt(var(CEA$logDalyPerThousand) * (nrow(CEA) - 1)/(nrow(CEA))) * qnorm(0.95
 
 In the dataset, this is 62.8, so the 95th percentile intervention is estimated to be 62.8 times as effective as the median intervention.
 
-2. Find the asymptotic distribution for $\hat{\theta}$ and use this to approximate the standard error of the MLE.  Start from the exact distribution for $\hat{\sigma}^2$ and use the representation of a $\chi^2_n$ random variable as the sum of $n$ squared standard Normals to write a CLT statement.
+2. Find the asymptotic distribution for $\hat{\theta}$ and use this to approximate the standard error of the MLE. Start from the exact distribution for $\hat{\sigma}^2$ and use the representation of a $\chi^2_n$ random variable as the sum of $n$ squared standard Normals to write a CLT statement.
 
-From the distribution of the sample variance in a Normal model, $\frac{(n-1)\hat{\sigma}^2}{\sigma^2}\sim\chi_{n-1}^2$.  Since a $\chi^2_{n}$ can be represented as a sum of $n$ Normal random variables squared (each of which have mean $1$ and variance $2$ by the variance of a $\chi^2_1$ random variable), if $X_{n}=\sum_{i=1}^{n}Z_i^2$ for $Z_i$ i.i.d. standard Normals, the Central Limit Theorem gives 
+From the distribution of the sample variance in a Normal model, $\frac{(n-1)\hat{\sigma}^2}{\sigma^2}\sim\chi_{n-1}^2$. Since a $\chi^2_{n}$ can be represented as a sum of $n$ Normal random variables squared (each of which have mean $1$ and variance $2$ by the variance of a $\chi^2_1$ random variable), if $X_{n}=\sum_{i=1}^{n}Z_i^2$ for $Z_i$ i.i.d. standard Normals, the Central Limit Theorem gives 
 $$\sqrt{n}(X_{n}/n-1)\rightarrow \mathcal{N}(0,2)\implies \sqrt{n-1}(\hat{\sigma}^2/\sigma^2-1)\rightarrow\mathcal{N}(0,2)\iff \sqrt{n}(\hat{\sigma}^2-\sigma^2)\rightarrow\mathcal{N}(0,2\sigma^4)$$
 Then, with $g(x)=\exp\left(\sqrt{x} Q(0.95)\right)$ and $g'(x)=\frac{Q(0.95)}{2\sqrt{x}}\exp\left(\sqrt{x} Q(0.95)\right)$ the Delta Method gives $$\sqrt{n}(\hat{\theta}-\theta)\rightarrow\mathcal{N}\left(0,2\sigma^4\left(\frac{Q(0.95)}{2\sigma}\exp\left(\sigma Q(0.95)\right)\right)^2\right)$$
 
@@ -94,19 +95,19 @@ As an approximation, this gives $$\hat{\theta}\sim\mathcal{N}\left(\theta,\frac{
 
 3. Explain how to approximate the standard error of $\hat{\theta}$ using a non-parametric bootstrap.
 
-Take many samples of size $n$ from the original distribution with replacement.  For each, compute $\exp\left(\hat\sigma^* Q_Z(0.95)\right)$.  Return the standard deviation of these draws.
+Take many samples of size $n$ from the original distribution with replacement. For each, compute $\exp\left(\hat\sigma^* Q_Z(0.95)\right)$. Return the standard deviation of these draws.
 
-4. Explain how to approximate the standard error of $\hat{\theta}$ using a non-parametric bootstrap.
+4. Explain how to approximate the standard error of $\hat{\theta}$ using a parametric bootstrap.
 
-Take many samples of size $n$ from a Log-Normal distribution with parameters $\hat{\mu}$ and $\hat{\theta}$.  For each, compute $\exp\left(\hat\sigma^* Q_Z(0.95)\right)$.  Return the standard deviation of these draws.
+Take many samples of size $n$ from a Log-Normal distribution with parameters $\hat{\mu}$ and $\hat{\theta}$. For each, compute $\exp\left(\hat\sigma^* Q_Z(0.95)\right)$. Return the standard deviation of these draws.
 
 5. Explain how to approximate the standard error of $\tilde{\theta}=\hat{Q}(0.95)/\hat{Q}(0.5)$ using a non-parametric bootstrap (the quantile is on the original scale).
 
-Take many samples of size $n$ from the original distribution with replacement.  For each, compute the sample 95th quantile and median and record the ratio.  Return the standard deviation of these draws.
+Take many samples of size $n$ from the original distribution with replacement. For each, compute the sample 95th quantile and median and record the ratio. Return the standard deviation of these draws.
 
 6. Explain how to approximate the standard error of $\tilde{\theta}$ with a parametric bootstrap.
 
-Take many samples of size $n$ from a Log-Normal distribution with parameters $\hat{\mu}$ and $\hat{\theta}$.  For each, compute the sample 95th quantile and median and record the ratio.  Return the standard deviation of these draws.
+Take many samples of size $n$ from a Log-Normal distribution with parameters $\hat{\mu}$ and $\hat{\theta}$. For each, compute the sample 95th quantile and median and record the ratio. Return the standard deviation of these draws.
 
 7. Compare the standard errors from 2-6.
 
@@ -161,29 +162,29 @@ round(c("Theta hat" = exp(sqrt(var(CEA$logDalyPerThousand) *
                                  (nrow(CEA) - 1)/(nrow(CEA))) * qnorm(0.95)), 
         "Theta tilde" = unname(quantile(CEA$DalyPerThousand, 0.95)) / 
           unname(quantile(CEA$DalyPerThousand, 0.5))), 3)
-df <- data.frame(round(c("Theta hat SE approximate" = se_2, 
+df <- data.frame(round(c("Theta hat SE asymptotic approximation" = se_2, 
                          "Theta hat SE non-parametric bootstrapped" = se_3, 
                          "Theta hat SE parametric bootstrap" = se_4,
-                         "Theta tilde Non-parametric bootstrap" = se_5, 
-                         "Theta tilde parametric bootstrap" = se_6), 3))
+                         "Theta tilde SE non-parametric bootstrap" = se_5, 
+                         "Theta tilde SE parametric bootstrap" = se_6), 3))
 
 colnames(df) <- c("")
 knitr::kable(df)
 ```
 
-The standard error for $\hat{\theta}$ is lower than the standard error for $\tilde{\theta}$ in all approximations, which makes sense because it is incorporating more information (the entire variance rather than just the upper tail).  The standard errors for $\tilde{\theta}$ show a considerable difference, presumably because the parametric bootstrap sometimes generates very extreme values.
+The standard error for $\hat{\theta}$ is lower than the standard error for $\tilde{\theta}$ in all approximations, which makes sense because it is incorporating more information (the entire variance rather than just the upper tail). The standard errors for $\tilde{\theta}$ show a considerable difference, presumably because the parametric bootstrap sometimes generates very extreme values.
 
 8. Explain how to construct an approximate 95\% bootstrap confidence interval for $\theta$ with the percentile method on $\tilde{\theta}$.
 
-Take many samples of size $n$ from the original distribution with replacement.  For each, compute the sample 95th quantile and median and record the ratio.  Find the 2.5th and 97.5th percentiles of the ratios and report this as the interval.
+Take many samples of size $n$ from the original distribution with replacement. For each, compute the sample 95th quantile and median and record the ratio. Find the 2.5th and 97.5th percentiles of the ratios and report this as the interval.
 
-9. Explain how to construct an approximate 95\% bootstrap confidence interval for $\theta$ with a Normal approximation and a bootstrap standard error for $\tilde{\theta}$.  Use the scale with better asymptotic properties and then convert the interval if necessary.
+9. Explain how to construct an approximate 95\% bootstrap confidence interval for $\theta$ with a Normal approximation and a bootstrap standard error for $\tilde{\theta}$. Use the scale with better asymptotic properties and then convert the interval if necessary.
 
-Take many samples of size $n$ from the log of the original distribution with replacement.  For each, compute the sample 95th quantile and median and record the difference.  Find the standard deviation of these differences.  Then construct an interval by adding and subtracting $Q_{\mathcal{N}(0,1)}(0.975)$ times the standard deviation to or from $\log(\tilde{\theta})$.  Finally, exponentiate both ends of the confidence interval to transform to the original scale.  Performing this all on the log scale and then transforming at the end will give better asymptotic properties because the difference in quantiles will be more Normal on the log scale.
+Take many samples of size $n$ from the log of the original distribution with replacement. For each, compute the sample 95th quantile and median and record the difference. Find the standard deviation of these differences. Then construct an interval by adding and subtracting $Q_{\mathcal{N}(0,1)}(0.975)$ times the standard deviation to or from $\log(\tilde{\theta})$. Finally, exponentiate both ends of the confidence interval to transform to the original scale. Performing this all on the log scale and then transforming at the end will give better asymptotic properties because the difference in quantiles will be more Normal on the log scale.
 
 10. Compare the bootstrap intervals from 7 and 8 including both scales for the Normal approximation.
 
-```{r, cache=T}
+```{r, cache=T, echo=F}
 nboot <- 10^4
 one_boot <- function() {
   samples <- sample(CEA$DalyPerThousand, n, replace = T)
@@ -216,8 +217,7 @@ knitr::kable(df)
 
 All three bootstrapped intervals are very similar.
 
-One thing we might be interested in is how cost-effectiveness differs by country.  As in week 8, we can perform a Bayesian readjustment (Normal this time) to account for the number of studies in each country.  The table below shows the posterior means for intervention cost-effectiveness in the top and bottom countries.
-
+11. One thing we might be interested in is how cost-effectiveness differs by country. As in week 8, we can perform a Bayesian readjustment (Normal this time) to account for the number of studies in each country. The table below shows the posterior means for intervention cost-effectiveness in the top and bottom countries.
 ```{r, fig.height=4, fig.width=7, fig.align='center', echo=F, cache=T}
 aggregated_countries <- do.call(data.frame, 
                                 (aggregate(logDalyPerThousand ~ Country, CEA, 
@@ -245,10 +245,9 @@ low_val <- cbind("County" = aggregated_countries$Country[order(aggregated_countr
 
 knitr::kable(low_val)
 ```
+[The World Bank classifies](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519) countries with gross national incomes per capita below \$1135 as low-income and countries with GNI per capitas above \$13846 as high-income. Let $\mu_1$ and $\mu_2$ be the true mean cost-effectiveness of interventions in low and high income countries respectively. Perform a two-sample $t$-test for $H_0:\mu_1=\mu_2$ vs $H_a:\mu_1\neq \mu_2$.
 
-11. [The World Bank classifies](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519) countries with gross national income per capita below \$1085 as low-income and countries with GNI per capitas above \$13205 as high-income.  Let $\mu_1$ and $\mu_2$ be the true mean cost-effectiveness of interventions in low and high income countries respectively.  Perform a two-sample $t$-test for $H_0:\mu_1=\mu_2$ vs $H_a:\mu_1\neq \mu_2$.
-
-```{r, cache=T}
+```{r, cache=T, echo=F}
 income <- read.csv("data/income.csv")[,c(1,2)]
 CEA_with_income <- inner_join(CEA, income, by=c("Country"))
 high_income <- CEA_with_income$DalyPerThousand[CEA_with_income$Income == "High"]
@@ -258,7 +257,7 @@ t.test(high_income, low_income, var.equal = F, alternative = "two.sided")
 
 The p-value is much less than 0.05, so we reject the null and conclude that there is a difference in cost-effectiveness interventions in low and high income countries.
 
-12. Perform a permutation test for whether the distributions of cost-effectiveness of interventions are different between country income groups.  Use the absolute difference in sample means as the test statistic.
+12. Perform a permutation test for whether the distributions of cost-effectiveness of interventions are different between country income groups. Use the absolute difference in sample means as the test statistic.
 
 ```{r, fig.height=3, fig.width=4, fig.align='center', cache=T}
 nperm <- 10^5
@@ -303,17 +302,9 @@ ggplot(CEA_with_income, aes(x=DalyPerThousand, col=Income)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
-The assumptions of the $t$-test are that (1) the data are Normally distributed (or the sample sizes are large enough that the sample means are approximately Normal) and (2) the observations are i.i.d. within each group and are independent between groups.  If using the original $t$-test, we further assume that the variances of the two groups are equal.  In the permutation test, we still assume that the observations are i.i.d. within each group and independent between groups, but we do not assume the data are Normal.  We can see that the two groups are approximately Normal on the log scale, so they will be extremely right skewed on the original scale.
+The assumptions of the $t$-test are that (1) the data are Normally distributed (or the sample sizes are large enough that the sample means are approximately Normal) and (2) the observations are i.i.d. within each group and are independent between groups. If using the original $t$-test, we further assume that the variances of the two groups are equal. In the permutation test, we still assume that the observations are i.i.d. within each group and independent between groups, but we do not assume the data are Normal. We can see that the two groups are approximately Normal on the log scale, so they will be extremely right skewed on the original scale.
 
-The $t$-test null hypothesis is that the means are equal while the permutation null hypothesis is that the distributions are equal.  Rejecting the $t$ null means concluding that the two groups have different means while rejecting the bootstrap null just means concluding that the distributions are not equal.
-
-# Feedback
-
-As part of my continual effort to improve my teaching, please take a moment to [provide some feedback](https://forms.gle/QyKkjnprbZiT3NeW7) on section this semester.
-
-\centering
-\includegraphics[width=0.3\linewidth]{feedback_qr.png}
-
+The $t$-test null hypothesis is that the means are equal while the permutation null hypothesis is that the distributions are equal. Rejecting the $t$ null means concluding that the two groups have different means while rejecting the bootstrap null just means concluding that the distributions are not equal.
 
 
 

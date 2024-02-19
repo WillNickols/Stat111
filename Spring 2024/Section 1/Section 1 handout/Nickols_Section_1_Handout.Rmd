@@ -26,7 +26,9 @@ urlcolor: blue
 
 Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 1 due...
+Research in education suggests that when students learn material, take a test, see the material presented again, and take another test, they improve very little from the first to second test. However, when students learn material, take a test, try to solve examples of the material and see how they and others get it wrong, and take the second test, they improve considerably. Thus, my sections will only consist of practice problems, not lecturing, but a compilation of course notes is [available from the final review session I led last year](https://github.com/WillNickols/Stat111/blob/main/Spring%202023/Final%20review/Final%20review%20solutions/Nickols_Final_review_solutions.pdf).
+
+Pset 1 due Friday 2/2
 
 ```{r, echo=F, warning=F, message=F}
 list.of.packages <- c("ggplot2", "gridExtra")

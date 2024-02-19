@@ -27,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+Make sure to sign in on both Google forms: [this one](https://forms.gle/BS4XXnzdR53ZhxDS9) and [this one](https://bit.ly/stat111attend).
 
-Pset 4 due...
+Pset 4 due 2/23.
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -163,7 +163,11 @@ ggplot(df, aes(x = x)) +
 
 \vspace{3 cm}
 
-3. Consider trying to fine the MLE estimates with numerical optimization; that is, choose a starting point and iteratively evaluate the gradient of the log-likelihood and take a small step in that direction until the parameters stop updating. What might go wrong computationally?
+3. What are the MLE estimates for $\alpha$ and $\beta$? Are they necessarily consistent? Asymptotically Normal?
+
+\vspace{5 cm}
+
+4. Find method of moments estimators for $\alpha$ and $\beta$.
 
 \vspace{5 cm}
 

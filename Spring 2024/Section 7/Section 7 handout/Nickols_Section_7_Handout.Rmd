@@ -9,6 +9,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{wrapfig}
 - \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -26,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 7 due Friday 3/31
+Pset 7...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra", "reshape2", "viridis", "pracma")
@@ -44,7 +45,7 @@ library(pracma)
 
 # Detecting the unknown
 
-During the Covid-19 pandemic, considerable effort was put into estimating Covid-19 community case counts based on wastewater testing.  With an eye towards detecting future pandemics early, the [Nucleic Acid Observatory](https://www.naobservatory.org/) was founded in 2021 with the intention of performing daily metagenomic sequencing on wastewater and major waterways for early biological threat detection.  Because a pandemic is likely to involve a previously uncharacterized microbe, the detection will rely on the assumption that a novel threat will show exponential growth compared to the background fluctuations of other microbes.
+During the Covid-19 pandemic, researchers put considerable effort into estimating Covid-19 community case counts based on wastewater testing. With an eye towards detecting future pandemics early, the [Nucleic Acid Observatory](https://www.naobservatory.org/) was founded in 2021 with the intention of performing daily metagenomic sequencing on wastewater and major waterways for early biological threat detection. Because a pandemic is likely to involve a previously uncharacterized microbe, the detection will rely on the assumption that a novel threat will show exponential growth compared to the background fluctuations of other microbes.
 
 ```{r, fig.width=7.5, fig.height=3, fig.align='center', cache=T, echo=F}
 set.seed(111)
@@ -74,25 +75,31 @@ ggplot(x, aes(fill=Species, y=Abundance, x=Time)) +
   xlab("Time point")
 ```
 
-In the plot above, we want to be able to detect threats like species j before they become dominant.  To make these detections, we will assume the daily change in log abundance for a species is independent $Y_t\sim\mathcal{N}(\mu,\sigma^2)$ with $\mu$ and $\sigma^2$ unknown (raw species abundances in microbiome data are often assumed to have log-normal distributions).  If $\mu>0$, on the original scale, the species will grow exponentially over time, indicating a threat.
+In the plot above, we want to be able to detect threats like species j before they become dominant. To make these detections, we will assume the daily change in log abundance for a species is independent $Y_t\sim\mathcal{N}(\mu,\sigma^2)$ with $\mu$ and $\sigma^2$ unknown (raw species abundances in microbiome data are often assumed to have log-normal distributions). If $\mu>0$, on the original scale, the species will grow exponentially over time, indicating a threat.
 
-1. Write a one-sided null and alternative hypothesis.  Is this null simple or composite?
+1. Write a one-sided null and alternative hypothesis. Is this null simple or composite?
 
 \vspace{2 cm}
 
-2. Suppose we have observed day-to-day differences $Y_1,...,Y_n$ for a particular species.  Construct an exact test statistic and give its distribution under the null.  Show how you would find a p-value $p_1$ for the observed test statistic $t_{obs}$.  State the rejection region for a significance level $\alpha$.
-
-\vspace{4 cm}
-
-3. Show that a confidence interval with width $2\bar{Y}$ covers $\mu$ with probability $1-2p_1$.
-
-\vspace{5 cm}
-
-4. Find the power for the test $\beta(\mu,\sigma^2)$ at significance level $\alpha$ (the probability of rejecting the null given the true parameters $\mu$ and $\sigma^2$).  Leave the answer as an expectation that could be calculated with LOTUS and explain how you would calculate it numerically.
+2. Suppose we have observed day-to-day differences $Y_1,...,Y_n$ for a particular species. Construct an exact test statistic and give its distribution under the null. Show how you would find a p-value $p_1$ for the observed test statistic $t_{obs}$. State the rejection region for a significance level $\alpha$.
 
 \vspace{6 cm}
 
-```{r, echo=F}
+3. Find the power for the test $\beta(\mu,\sigma^2)$ at significance level $\alpha$ (the probability of rejecting the null given the true parameters $\mu$ and $\sigma^2$). Leave the answer as an expectation that could be calculated with LOTUS and explain how you would calculate it numerically.
+
+\vspace{10 cm}
+
+4. Another way to test our hypotheses is to use the proportion of days the abundance of a species increased. Let $I_i$ be the indicator that $Y_i>0$. Construct a test statistic based on $I_i$ and give its distribution under the null. Show how you would find a p-value for the observed test statistic. Can this test be constructed to give an exact type I error rate of $\alpha=0.05$?
+
+\vspace{5 cm}
+
+5. Find the power for the test $\beta(\mu,\sigma^2, \alpha)$.
+
+\vspace{6 cm}
+
+6. Fixing $\sigma^2=1$ and $\alpha=0.05$, the following plot shows the power of each method as a function of $\mu$ from $\mu=0$ to $\mu=2.5$ on the log scale for $n=10$. Which method performs better and why?  Why is the first method so jumpy?  Why is the second method not 0.05 at $\mu=0$?
+
+```{r, echo=F, fig.width=7.5, fig.height=3, fig.align='center', cache=T}
 fun <- function(x, y, mu, sigma_sq, n, alpha) { 
   for_return <- (pt(x / sqrt(sigma_sq * y / ((n - 1) * n)), n-1) > 1 - alpha) * 
     dnorm(x, mu, sd = sqrt(sigma_sq / n)) * 
@@ -103,21 +110,9 @@ fun <- function(x, y, mu, sigma_sq, n, alpha) {
 power_1 <- function(mu, sigma_sq, n, alpha) {
   # Integrating from 5 sds below and above should be fine for mu and sigma_sq
   integral2(fun, mu - sqrt(sigma_sq) * 5, mu + sqrt(sigma_sq) * 5, 0, 10 * n, 
-            mu=mu, sigma_sq=sigma_sq, n = n, alpha=alpha, reltol = 1e-10)$Q
+            mu=mu, sigma_sq=sigma_sq, n = n, alpha=alpha, reltol = 1e-14)$Q
 }
-```
 
-5. Another way to test our hypotheses is to use the proportion of days the abundance of a species increased.  Let $I_i$ be the indicator that $Y_i>0$.  Construct a test statistic based on $I_i$ and give its distribution under the null.  Show how you would find a p-value for the observed test statistic.  Can this test be constructed to give an exact type I error rate of $\alpha=0.05$?
-
-\vspace{3 cm}
-
-6. Find the power for the test $\beta(\mu,\sigma^2, \alpha)$.  How does this compare to before?
-
-\vspace{4 cm}
-
-7. Fixing $\sigma^2=1$ and $\alpha=0.05$, the following plot shows the power of each method as a function of $\mu$ from $\mu=0$ to $\mu=2.5$ on the log scale for $n=10$.  Which method performs better and why?  Why is the first method so jumpy?  Why is the second method not 0.05 at $\mu=0$?
-
-```{r, echo=F, fig.width=7.5, fig.height=3, fig.align='center', cache=T}
 sigma_sq <- 1
 mu <- seq(0, 2.5, 0.01)
 n <- 5
@@ -173,25 +168,25 @@ grid.arrange(p1, p2, ncol=2)
 
 \vspace{2 cm}
 
-8. A receiver operator characteristic (ROC) curve plots the true positive rate against the false positive rate to show the accuracy of a binary predictor.  The curve can be considered the result of evaluating many thresholds and plotting the true positive and false positive rate at each.  A curve that goes from (0,0) to (0,1) to (1,1) is a perfect classifier, and a curve that follows the $y=x$ line shows no predictive value.  Give two pairs of parametric equations that would give a proper ROC curve for each method.
-
-\vspace{4 cm}
-
-9. The vast majority of tested microbes will not be pathogenic.  In particular, assume that 1 out of every $k$ microbes is pathogenic for some large $k$.  The false discovery rate is the proportion of tests called as significant in which the null is actually true.  What is the false discovery rate for each test as a function of $k, n, \mu, \sigma^2, \alpha$?  What are these for large values of $k$?  What does this indicate?
-
-\vspace{4 cm}
-
-10. Perform a Wald test based on the second test statistic.  What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that for $\hat{p}=\frac{1}{n}\sum_{i=1}^nI_i$, the MLE for the true proportion of times the microbe's abundance increases, $\hat{p}\xrightarrow{d}\mathcal{N}(p,\mathcal{I}_{\vec{Y}}^{-1}(p))$ with $\mathcal{I}_{\vec{Y}}(p)=\frac{n}{p(1-p)}$.
+7. A receiver operator characteristic (ROC) curve plots the true positive rate against the false positive rate to show the accuracy of a binary predictor. The curve can be considered the result of evaluating many thresholds and plotting the true positive and false positive rate at each. A curve that goes from (0,0) to (0,1) to (1,1) is a perfect classifier, and a curve that follows the $y=x$ line shows no predictive value. Give two pairs of parametric equations that would give a proper ROC curve for each method.
 
 \vspace{3 cm}
 
-11. Perform a likelihood ratio test based on the second test statistic.  What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that the likelihood test statistic $\Lambda(\vec{Y})=2\log\left(\frac{L(\hat{p};\vec{Y})}{L(p_0;\vec{Y})}\right)\xrightarrow{d}\chi^2_1$ under the null.
+8. The vast majority of tested microbes will not be pathogenic. In particular, assume that 1 out of every $k$ microbes is pathogenic for some large $k$. The false discovery rate is the proportion of tests called as significant in which the null is actually true. What is the false discovery rate for each test as a function of $k, n, \mu, \sigma^2, \alpha$?  What are these for large values of $k$?  What does this indicate?
 
-\vspace{4 cm}
+\vspace{7 cm}
 
-12. How do these compare to the exact p-value?
+9. Perform a Wald test based on the second test statistic. What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that for $\hat{p}=\frac{1}{n}\sum_{i=1}^nI_i$, the MLE for the true proportion of times the microbe's abundance increases, $\hat{p}\xrightarrow{d}\mathcal{N}(p,\mathcal{I}_{\vv{Y}}^{-1}(p))$ with $\mathcal{I}_{\vv{Y}}(p)=\frac{n}{p(1-p)}$.
 
-\vspace{3 cm}
+\vspace{5 cm}
+
+10. Perform a likelihood ratio test based on the second test statistic. What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that the likelihood test statistic $\Lambda(\vv{Y})=2\log\left(\frac{L(\hat{p};\vv{Y})}{L(p_0;\vv{Y})}\right)\xrightarrow{d}\chi^2_1$ under the null.
+
+\vspace{7 cm}
+
+11. How do these compare to the exact p-value?
+
+\vspace{5 cm}
 
 
 

@@ -7,6 +7,9 @@ header-includes:
 - \usepackage{tcolorbox}
 - \usepackage{fancyhdr}
 - \usepackage[utf8]{inputenc}
+- \usepackage{wrapfig}
+- \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -17,10 +20,16 @@ urlcolor: blue
 \rfoot{Page \thepage}
 
 # Announcements
-- Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of what section questions are useful for what pset questions afterwards)
-- Pset 5 due Friday 3/3
-- Midterm Tuesday 3/7 in class.  Make sure to fill out the conflict form by today if you can't make it.
-- In preparation for the midterm, I'll hold office hours rather than section next week at this time
+
+\begin{wrapfigure}{r}{0.12\textwidth}
+  \centering
+    \vspace*{-1.3cm}
+    \includegraphics[width=\linewidth]{section_qr_code.png}
+\end{wrapfigure}
+
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+
+Pset 5 due...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -54,87 +63,96 @@ p2 <- ggplot(crops_binned, aes(x=Acres)) +
 grid.arrange(p1, p2, ncol=2)
 ```
 
-Continuous data is often binned into intervals due to privacy, imprecision, or other reasons.  In this set of problems, we'll be modeling corn acreage for U.S. counties under various assumptions.
+Continuous data are often binned into intervals for privacy or precision reasons. In this set of problems, we'll be modeling corn acreage for U.S. counties under various assumptions.
 
-1. First, assume there has been no binning.  Therefore, the acreage devoted to corn farming in a county is i.i.d. $Y_i\sim\textrm{Expo}(\lambda)$.  Show that this model is a Natural Exponential Family by finding $\theta$, $\Psi(\theta)$, and $h(y)$ such that $f_{Y_i}(y)=e^{\theta y-\Psi(\theta)}h(y)$.
+1. First, assume there has been no binning. Therefore, the acreage devoted to corn farming in a county is i.i.d. $Y_i\sim\textrm{Expo}(\lambda)$. Show that this model is a Natural Exponential Family by finding $\theta$, $\Psi(\theta)$, and $h(y)$ such that $f_{Y_i}(y)=e^{\theta y-\Psi(\theta)}h(y)$ where $h(y)$ is a PDF or PMF.
 
-\vspace{2cm}
+\vspace{9 cm}
 
-2. Use properties of NEFs to find the MLE $\hat{\lambda}$.  Also, find the mean and variance of $Y_i$ and the Fisher information of $\lambda$ using properties of the NEF.
+2. Use properties of NEFs to find the MLE $\hat{\lambda}$. Also, find the mean and variance of $Y_i$ and the Fisher information of $\lambda$ using properties of the NEF.
 
-\vspace{3cm}
+\vspace{8 cm}
 
-Now, suppose the data has been binned into intervals of $\tau$ such that $X_i=\lfloor Y_i / \tau \rfloor\cdot \tau$ where $\tau$ is the bin width.
+3. Now, suppose the data have been binned into intervals of $\tau$ such that $X_i=\lfloor Y_i / \tau \rfloor\cdot \tau$ where $\tau$ is the bin width. Intuitively, will the likelihood function for $\lambda$ be the same as if we had all the $Y_i$?
 
-3. Intuitively, will the likelihood function for $\lambda$ be the same as if we had all the $Y_i$?
-
-\vspace{1cm}
+\vspace{3 cm}
 
 4. Write the likelihood function for this model in terms of the $x_i$.
 
-\vspace{4cm}
+\vspace{7 cm}
 
-5. Find a sufficient statistic for the data by invoking the factorization criterion.  (Recall that the factorization criterion says $T(\vec{Y})$ is a sufficient statistic iff we can factor $P(\vec{X}=\vec{x}|\lambda)=g(T(\vec{X}), \lambda)h(\vec{x})$.)
+5. Find a sufficient statistic for the data by invoking the factorization criterion. (Recall that the factorization criterion says $T(\vv{X})$ is a sufficient statistic iff we can factor $P(\vv{X}=\vv{x}|\lambda)=g(T(\vv{X}), \lambda)h(\vv{x})$.)
 
-\vspace{2cm}
+\vspace{4 cm}
 
 6. As the bin width decreases ($\tau\rightarrow0$), the likelihood function should converge to the likelihood function of i.i.d. exponentials:
 $$\lambda^n\exp\left(-\lambda n\bar{y}\right)$$
 By Taylor expanding the likelihood from (4) with respect to $\tau$, show this is the case.
 
-\vspace{3cm}
+\vspace{6 cm}
 
 7. Do the $X_i$ follow a Natural Exponential Family?  If so, use $\frac{1}{2^{x+1}}$ as $h(x)$.
 
-\vspace{3cm}
+\vspace{8 cm}
 
 8. Find the mean and variance of $X_i$.
 
-\vspace{3cm}
+\vspace{6 cm}
 
 9. Find the MLE for $\lambda$.
 
-\vspace{3cm}
+\vspace{7 cm}
 
 10. What is the MSE of $\hat{\lambda}_\textrm{MLE}$?
 
-\vspace{2cm}
+\vspace{4 cm}
 
 11. Would Rao-Blackwellization improve the MLE for $\lambda$?  If not, suggest your own improvement.
 
-\vspace{2cm}
+\vspace{4 cm}
 
-12. Using the real data, how does the MLE compare to (1) using the points as they are to estimate $\lambda$ and (2) using the midpoint of each interval to estimate $\lambda$?  Assess this by calculating the "true" $\lambda$ from the exact data as one over the sample mean.  In the real data, $\tau=5000$.
+12. Using the real data, how does the MLE compare to (1) using the points as they are to estimate $\lambda$ and (2) using the midpoint of each interval to estimate $\lambda$?
 
-```{r}
-# TODO: Compare estimators
+```{r, echo=F}
+true_lambda <- 1/mean(crops_real$Acres)
+tau <- 5000
+mle = log(tau/mean(crops_binned$Acres) + 1) / tau
+left_bin <- 1/mean(crops_binned$Acres)
+mid_bin <- 1/mean(crops_binned$Acres + tau / 2)
+
+df <- round(rbind(c(true_lambda, mle, left_bin, mid_bin), 
+                  (c(true_lambda, mle, left_bin, mid_bin) - true_lambda) / true_lambda), 6)
+colnames(df) <- c("True lambda", "MLE", "Bin left", "Bin center")
+rownames(df) <- c("Value", "Relative difference from true lambda")
+df
 ```
+
+\vspace{6 cm}
 
 \newpage
 # Geometric Underpinnings
 
-It turns out that the distribution above in (7) is just a special form of the Geometric with a support restricted to multiples of $\tau$.  In this question, we'll explore the Geometric futher.  Let $Y_1,...,Y_n$ be i.i.d. $\textrm{Geom}(p)$ with $p$ unknown.
+It turns out that the distribution above in (7) is just a special form of the Geometric with a support restricted to multiples of $\tau$. In this question, we'll explore the Geometric futher. Let $Y_1,...,Y_n$ be i.i.d. $\textrm{Geom}(p)$ with $p$ unknown.
 
 1. Show that the model is a Natural Exponential Family by finding $\theta$, $\Psi(\theta)$, and $h(y)$.
 
-\vspace{2cm}
+\vspace{7 cm}
 
 2. Use results about NEFs to derive the mean and variance.
 
-\vspace{2cm}
+\vspace{5 cm}
 
-3. It follows from (1) that $\bar{Y}$ is a sufficient statistic.  Check this directly using the factorization criterion.
+3. It follows from (1) that $\bar{Y}$ is a sufficient statistic. Check this directly using the factorization criterion.
 
-\vspace{2cm}
+\vspace{4 cm}
 
-4. Consider the estimator of the mean (estimating $q/p$) $Y_1$.  Use Rao-Blackwellization to improve this estimator.
+4. Consider the estimator of the mean (estimating $q/p$) $Y_1$. Use Rao-Blackwellization to improve this estimator.
 
-\vspace{2cm}
+\vspace{4 cm}
 
-5. Consider the estimator of the mean (estimating $q/p$) $\vec{w}\cdot\vec{Y}$ where $\vec{w}$ is a vector of weights that sums to 1.  Use Rao-Blackwellization to show that the best $\vec{w}$ is $(1/n,...,1/n)$.
+5. Consider the estimator of the mean (estimating $q/p$) $\vv{w}\cdot\vv{Y}$ where $\vv{w}$ is a vector of weights that sums to 1. Use Rao-Blackwellization to show that the best $\vv{w}$ is $(1/n,...,1/n)$.
 
-\vspace{5cm}
-
+\vspace{8 cm}
 
 
 

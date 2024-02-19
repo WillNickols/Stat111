@@ -31,7 +31,7 @@ Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
 Midterm...
 
-Pset 4 due...
+Pset 5 due...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -150,17 +150,17 @@ There is a positive probability of $\bar{X}$ being 0 because we are binning and 
 
 No, the MLE is a function of the sufficient statistic because the likelihood only depends on the sufficient statistic. Therefore, conditioning on a sufficient statistic will not change the MLE. We could avoid the divide-by-zero issue by adding a small value like $10^{-3}$ to $\bar{X}$ so it will always be positive.
 
-12. Using the real data, how does the MLE compare to (1) using the points as they are to estimate $\lambda$ and (2) using the midpoint of each interval to estimate $\lambda$?  Assess this by calculating the "true" $\lambda$ from the exact data as one over the sample mean. In the real data, $\tau=5000$.
+12. Using the real data, how does the MLE compare to (1) using the points as they are to estimate $\lambda$ and (2) using the midpoint of each interval to estimate $\lambda$?
 
-```{r}
+```{r, echo=F}
 true_lambda <- 1/mean(crops_real$Acres)
 tau <- 5000
 mle = log(tau/mean(crops_binned$Acres) + 1) / tau
 left_bin <- 1/mean(crops_binned$Acres)
 mid_bin <- 1/mean(crops_binned$Acres + tau / 2)
 
-df <- round(rbind(c(true_lambda, mle, left_bin, mid_bin), (true_lambda - 
-                    c(true_lambda, mle, left_bin, mid_bin)) / true_lambda), 6)
+df <- round(rbind(c(true_lambda, mle, left_bin, mid_bin), 
+                  (c(true_lambda, mle, left_bin, mid_bin) - true_lambda) / true_lambda), 6)
 colnames(df) <- c("True lambda", "MLE", "Bin left", "Bin center")
 rownames(df) <- c("Value", "Relative difference from true lambda")
 df
@@ -170,7 +170,7 @@ The MLE does considerably better than using the bin's minimum value and slightly
 
 ```{r}
 lambda <- 1/5
-n <- 1000000
+n <- 1000
 x <- rexp(n, lambda)
 tau <- 1
 y <- floor(x / tau) * tau
@@ -179,8 +179,8 @@ mle = log(tau/mean(y) + 1) / tau
 left_bin <- 1/mean(y)
 mid_bin <- 1/mean(y + tau / 2)
 
-df <- round(rbind(c(lambda, mle, left_bin, mid_bin), lambda - 
-                    c(lambda, mle, left_bin, mid_bin)), 5)
+df <- round(rbind(c(lambda, mle, left_bin, mid_bin), 
+                  (c(lambda, mle, left_bin, mid_bin) - lambda) / lambda), 3)
 
 tau <- 5
 y <- floor(x / tau) * tau
@@ -190,11 +190,11 @@ left_bin <- 1/mean(y)
 mid_bin <- 1/mean(y + tau / 2)
 
 df <- rbind(df, round(rbind(c(lambda, mle, left_bin, mid_bin), 
-                            lambda - c(lambda, mle, left_bin, mid_bin)), 5))
+                            (c(lambda, mle, left_bin, mid_bin) - lambda) / lambda), 3))
 
-colnames(df) <- c("True lambda", "MLE", "Bin left", "Bin center")
-rownames(df) <- c("Value (tau = 1)", "Difference from true lambda (tau = 1)", 
-                  "Value (tau = 5)", "Difference from true lambda (tau = 5)")
+colnames(df) <- c("True lambda", "MLE", "Left", "Center")
+rownames(df) <- c("Value (tau = 1)", "Relative difference from true lambda (tau = 1)", 
+                  "Value (tau = 5)", "Relative difference from true lambda (tau = 5)")
 df
 ```
 
@@ -221,7 +221,7 @@ $$\textrm{Var}(Y_i)=\Psi''(\theta)=\frac{2e^{-\theta}}{(2e^{-\theta}-1)^2}=\frac
 3. It follows from (1) that $\bar{Y}$ is a sufficient statistic. Check this directly using the factorization criterion.
 
 The joint PMF of the data is $$P(\vv{Y}=\vv{y})=\prod_{i=1}^n pq^{y_i}=p^nq^{n\bar{y}}=g(\bar{y},p)h(\vv{y})$$
-where $g(\bar{y},p)=p^nq^{n\bar{y}}$ and $h(\vv{y})=1$. Note that we don't need to write $h(\vv{y})$ as a PDF or PMF of anything. (What would it be the PDF or PMF of anyway?  We're decomposing a PDF or PMF.)
+where $g(\bar{y},p)=p^nq^{n\bar{y}}$ and $h(\vv{y})=1$. Note that we don't need to write $h(\vv{y})$ as a PDF or PMF. (What would it be the PDF or PMF of anyway?  We're decomposing a PDF or PMF.)
 
 4. Consider the estimator of the mean (estimating $q/p$) $Y_1$. Use Rao-Blackwellization to improve this estimator.
 

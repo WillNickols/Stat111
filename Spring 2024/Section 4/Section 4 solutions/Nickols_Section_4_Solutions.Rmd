@@ -27,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+Make sure to sign in on both Google forms: [this one](https://forms.gle/BS4XXnzdR53ZhxDS9) and [this one](https://bit.ly/stat111attend).
 
-Pset 4 due...
+Pset 4 due 2/23.
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -98,7 +98,7 @@ The vector is Multivariate Normal because each element is a linear combination o
 
 3. Using the results above, write a function of $\bar{Y}$ and $S^2$ that has the $t_{n-1}$ distribution (this is our pivot). Recall that the $t_n$ distribution is defined as $\frac{Z}{\sqrt{V/n}}$ where $Z\sim\mathcal{N}(0,1)$ and $V\sim\chi_{n}^2$ are independent.
 
-$$\frac{\bar{Y}}{\sqrt{S^2/n}}=\frac{\frac{\bar{Y}}{\sigma/\sqrt{n}}}{\sqrt{\frac{(n-1)S^2}{\sigma^2}\cdot\frac{1}{n-1}}}\sim t_{n-1}$$
+$$\frac{\frac{\bar{Y}}{\sigma/\sqrt{n}}}{\sqrt{\frac{(n-1)S^2}{\sigma^2}\cdot\frac{1}{n-1}}}=\frac{\bar{Y}}{\sqrt{S^2/n}}\sim t_{n-1}$$
 since the standard normal in the numerator is a function of only $\bar{Y}$ and is therefore independent of the $\chi^2_{n-1}$ in the denominator, which is a function of only the sample variance. Note that the formula on the left has no mean because we specified the mean to be $0$. However, normally there would be a $\bar{Y}-\mu$ in the numerator.
 
 4. In terms of a CDF $F$, determine $P\left(\frac{\bar{Y}}{\sqrt{S^2/n}}>\tau\right)$ for a fixed $\tau$. Describe what this probability means in the context of the problem.
@@ -181,37 +181,19 @@ $$\textrm{Var}(Z)=\sum_{i=1}^{12}\textrm{Var}(U_i)=\sum_{i=1}^{12}\frac{1}{12}=1
 
 $$L(\alpha,\beta;\vv{y})=\prod_{i=1}^n\frac{I(\alpha-\beta/2\leq y_i\leq \alpha+\beta/2)}{\beta}=\frac{I(\alpha-\beta/2\leq y_{(1)})I(y_{(n)}\leq \alpha+\beta/2)}{\beta^n}$$
 
-3. Consider trying to fine the MLE estimates with numerical optimization; that is, choose a starting point and iteratively evaluate the gradient of the log-likelihood and take a small step in that direction until the parameters stop updating. What might go wrong computationally?
+3. What are the MLE estimates for $\alpha$ and $\beta$? Are they necessarily consistent? Asymptotically Normal?
 
-Our log likelihood only has a non-zero gradient with respect to $\beta$ and jumps to $-\infty$ once the indicators fail. Probably the best thing to do here is to use differentiable functions to very severely penalize $\alpha$ and $\beta$ that get close to the min and max. The following gives a case of $\alpha=10$ and $\beta=5$ with $n=100$ uniform random variables. It uses the `optim` function in R to estimate $\alpha$ and $\beta$ from starting guesses of $(20,100)$ by maximizing the likelihood function.
-
-```{r}
-set.seed(111)
-alpha = 10
-beta = 5
-n <- 100
-x <- runif(n, alpha - beta/2, alpha + beta/2)
-
-loglikelihood <- function(params) {
-  # Penalize lower and upper bounds close to the min and max
-  return (- ((10^12)^((params[1] - params[2]/2) - min(x))) - 
-    ((10^12)^(max(x) - (params[1] + params[2]/2))) - n * params[2])
-}
-
-# Initial guess
-params <- c(20, 100)
-
-# Run the optimization
-optimization <- optim(params, loglikelihood, method="L-BFGS-B", 
-                      control=list(fnscale=-1), lower=c(-Inf,0), upper=c(Inf,Inf))
-optimization$par
-```
+The likelihood function is decreasing with $\beta$ as long as the indicators in the numerator are true. We can make $\beta$ as small as possible by setting $\hat{\beta}=Y_{(n)}-Y_{(1)}$ and $\hat{\alpha}=Y_{(1)}+\hat{\beta}/2$. These are necessarily consistent since $Y_{(1)}\rightarrow \alpha-\beta/2$ and $Y_{(n)}\rightarrow \alpha+\beta/2$. This can be seen by the fact that $P(Y_i\geq\alpha-\beta/2+\epsilon)=1-\epsilon/\beta$, so $P(Y_{(1)}\geq \alpha-\beta/2+\epsilon)=(1-\epsilon/\beta)^n\rightarrow 0$, so $Y_{(1)}\rightarrow \alpha-\beta/2$ as $n\rightarrow \infty$. A similar argument holds for $Y_{(n)}\rightarrow \alpha+\beta/2$. However, they are not necessarily asymptotically Normal since the regularity conditions for the asymptotic Normality of the MLE requires the support to be unaffected by the parameters.
 
 4. Find method of moments estimators for $\alpha$ and $\beta$.
 
 $E(Y_i)=\alpha$, so $\bar{Y}$ is a method of moments estimator for $\alpha$. For a uniform random variable, $$\textrm{Var}(Y_i)=E(Y_i^2)-E(Y_i)^2=\frac{\beta^2}{12}\implies \hat{\beta}=\sqrt{12(\overline{Y^2} - \bar{Y}^2)}$$
 
 ```{r}
+alpha <- 10
+beta <- 5
+n <- 100
+x <- runif(n, alpha - beta/2, alpha + beta/2)
 c(mean(x), sqrt(12 * (mean(x^2) - mean(x)^2)))
 ```
 

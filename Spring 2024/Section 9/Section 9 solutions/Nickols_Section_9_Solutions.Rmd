@@ -9,6 +9,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{wrapfig}
 - \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -26,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 9 due Friday 4/16
+Pset 9...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra", "reshape2", "matrixStats")
@@ -43,15 +44,15 @@ library(matrixStats)
 
 # Optimal Polling
 
-When conducting political polls, a reasonable goal is to construct the most accurate and precise estimate of public opinion while contacting as few people as possible.  Each person you contact will require some amount of time and labor, so minimizing this count is preferable.  In this problem, we will be looking at binary voter support of some candidate where voter $i$ has the indicator $y_i$ which is 1 if the voter supports the candidate and $0$ otherwise.  We assume that everyone in the size $N$ population has an opinion about the candidate, so the $y_i$ are not random, but which of these we actually sample is random.  We want to estimate $\mu=\frac{1}{N}\sum_{i=1}^Ny_i$, the average support for the candidate.
+When conducting political polls, a reasonable goal is to construct the most accurate and precise estimate of public opinion while contacting as few people as possible. Each person you contact will require some amount of time and labor, so minimizing this count is preferable. In this problem, we will be looking at binary voter support of some candidate where voter $i$ has the indicator $y_i$ which is 1 if the voter supports the candidate and $0$ otherwise. We assume that everyone in the size $N$ population has an opinion about the candidate, so the $y_i$ are not random, but which of these we actually sample is random. We want to estimate $\mu=\frac{1}{N}\sum_{i=1}^Ny_i$, the average support for the candidate.
 
-In the United States, 31 states, the District of Columbia, and the U.S. Virgin Islands allow voters to indicate their partisan affiliations on voter registration forms and also report these total registration numbers publicly.  Suppose for this problem that someone can only be a registered Democrat, registered Republican, or independent, and suppose we have information on which of these groups each person is.  Note that someone's voter registration does not constrain whom the voter can vote for.  For example, a registered Democrat can vote for a Republican.
+In the United States, 31 states, the District of Columbia, and the U.S. Virgin Islands allow voters to indicate their partisan affiliations on voter registration forms and also report these total registration numbers publicly. Suppose for this problem that someone can only be a registered Democrat, registered Republican, or independent, and suppose we have information on which of these groups each person is. Note that someone's voter registration does not constrain whom the voter can vote for. For example, a registered Democrat can vote for a Republican.
 
-1. Suppose we are in a state that makes this voter registration public so we can look up someone's party affiliation if the person has one.  Explain intuitively why it might be suboptimal to take a simple random sample of voters, contact them, and average their opinions on the candidate.
+1. Suppose we are in a state that makes this voter registration public so we can look up someone's party affiliation if the person has one. Explain intuitively why it might be suboptimal to take a simple random sample of voters, contact them, and average their opinions on the candidate.
 
 If we know in advance the person's party affiliation, we might be able to guess the voter's opinion on the candidate and not bother contacting him or her.
 
-2. Let $\mu$ be the support for the candidate in the whole state.  Let $\mu_1=\frac{1}{N_1}\sum_{i:\textrm{Voter i is a Democrat}}y_i$ be the support for the candidate among all registered Democrats, $\mu_2$ be the support among all registered Republicans, and $\mu_3$ be the support among all independents.  Let $p_1$ be the proportion of Democrats in the state, $p_2$ be the proportion of Republicans, and $p_3$ be the proportion of independents.  We treat these $p$ as known since we can look up the registered proportions.  Suppose a random sample of $n$ people is taken without replacement from the state and the people are contacted about their opinions on the candidate.  Let $Y_1,...,Y_n$ be the opinions reported in the sample.  Find the bias and variance of $$\hat{\mu}=\frac{1}{n}\sum_{i=1}^nY_i$$ in terms of the $\mu$s and $p$s.  Recall that the variance of the sample average with a finite population correction is $\frac{\textrm{Var}(Y_1)}{n}\frac{N-n}{N-1}$.
+2. Let $\mu$ be the support for the candidate in the whole state. Let $\mu_1=\frac{1}{N_1}\sum_{i:\textrm{Voter i is a Democrat}}y_i$ be the support for the candidate among all registered Democrats, $\mu_2$ be the support among all registered Republicans, and $\mu_3$ be the support among all independents. Let $p_1$ be the proportion of Democrats in the state, $p_2$ be the proportion of Republicans, and $p_3$ be the proportion of independents. We treat these $p$ as known since we can look up the registered proportions. Suppose a random sample of $n$ people is taken without replacement from the state and the people are contacted about their opinions on the candidate. Let $Y_1,...,Y_n$ be the opinions reported in the sample. Find the bias and variance of $$\hat{\mu}=\frac{1}{n}\sum_{i=1}^nY_i$$ in terms of the $\mu$s and $p$s. Recall that the variance of the sample average with a finite population correction is $\frac{\textrm{Var}(Y_1)}{n}\frac{N-n}{N-1}$.
 
 The bias is $$E(\hat{\mu})-\mu=\left(\frac{1}{n}\sum_{i=1}^nE(Y_i)\right)-\mu=\left(\frac{1}{n}\sum_{i=1}^n\mu\right)-\mu=0$$
 Letting $X_{i,k}$ be the indicator of voter $i$ being registered for party $k$, the variance is $$\begin{aligned}\textrm{Var}(\hat{\mu})&=\frac{\textrm{Var}(Y_1)}{n}\frac{N-n}{N-1}\\
@@ -61,9 +62,9 @@ Letting $X_{i,k}$ be the indicator of voter $i$ being registered for party $k$, 
 &=\frac{p_1\mu_1+p_2\mu_2+p_3\mu_3-(\mu_1p_1+\mu_2p_2+\mu_3p_3)^2}{n}\frac{N-n}{N-1}\\
 &=\frac{\mu(1-\mu)}{n}\frac{N-n}{N-1}\\
 \end{aligned}$$
-where the second equality is by Eve's law and the variance in the fourth equality is solved by noting that $X_jX_k=0$ for $j\neq k$.  You could also just get the last result immediately.
+where the second equality is by Eve's law and the variance in the fourth equality is solved by noting that $X_jX_k=0$ for $j\neq k$. You could also just get the last result immediately.
 
-3. Now, consider the stratified estimator $$\tilde{\mu}=\sum_{l=1}^3p_l\bar{Y}_l$$ with sample size $n_l$ for strata $l$.  Find its bias and variance in terms of the $\mu$s, $p$s, and $n$s.
+3. Now, consider the stratified estimator $$\tilde{\mu}=\sum_{l=1}^3p_l\bar{Y}_l$$ with sample size $n_l$ for strata $l$. Find its bias and variance in terms of the $\mu$s, $p$s, and $n$s.
 
 $$E(\tilde{\mu})-\mu=\left(\sum_{l=1}^3p_l\mu_l\right)-\mu=\left(\sum_{l=1}^3\frac{N_l}{N}\mu_l\right)-\mu=0$$
 Since the stratified means are independent,
@@ -86,9 +87,9 @@ You could also just note that the answer should be $n$ times $N_l\sigma_l$ divid
 
 5. Explain why the answer above is still useful even though we have $\mu_l$s in it.
 
-Normally, we do not want estimands in estimators or values that should be functions of only the data.  However, if we had a pilot survey to estimate $\mu_l$ for each political group or if we had historical data on a similar candidate, we could guess a $\mu_l$ and use it throughout.  If we guess wrong, we don't induce any bias; we just give up some precision.
+Normally, we do not want estimands in estimators or values that should be functions of only the data. However, if we had a pilot survey to estimate $\mu_l$ for each political group or if we had historical data on a similar candidate, we could guess a $\mu_l$ and use it throughout. If we guess wrong, we don't induce any bias; we just give up some precision.
 
-6. For $N=10^6, n=1000, p_1=0.25, p_2=0.3, p_3=0.45, \mu_1=0.9, \mu_2=0.1, \mu_3=0.55$, the following plot shows the standard deviation of each estimator.  One variable at a time is varied in each plot.  Explain why these results make sense.
+6. For $N=10^6, n=1000, p_1=0.25, p_2=0.3, p_3=0.45, \mu_1=0.9, \mu_2=0.1, \mu_3=0.55$, the following plot shows the standard deviation of each estimator. One variable at a time is varied in each plot. Explain why these results make sense.
 
 ```{r, echo=F, warning=F, fig.align='center', fig.width=7, fig.height=5, cache=T}
 # Don't mind this monstrosity
@@ -199,13 +200,13 @@ plot3 <- ggplot(df, aes(x = x, y = value, col = variable)) +
 grid.arrange(plot1, plot2, plot3, ncol=2, heights = c(1, 1.2))
 ```
 
-As we include more people in our sample, the standard deviation should continue to fall.  When the independents are most split ($\mu_3=0.5$), we have the highest standard error because we have the most variability in responses.  When the proportion of independents is near 1, we are essentially only randomly sampling from the independents in either scheme.  When the proportion of independents is near 0, we sample optimally from the Democrats and Independents and get a low variability since they are more consistent in their voting.
+As we include more people in our sample, the standard deviation should continue to fall. When the independents are most split ($\mu_3=0.5$), we have the highest standard error because we have the most variability in responses. When the proportion of independents is near 1, we are essentially only randomly sampling from the independents in either scheme. When the proportion of independents is near 0, we sample optimally from the Democrats and Independents and get a low variability since they are more consistent in their voting.
 
-7. Create a Horvitz-Thompson estimator for the SRS case and stratified sampling case.  Are either equivalent to the corresponding estimators above?
+7. Create a Horvitz-Thompson estimator for the SRS case and stratified sampling case. Are either equivalent to the corresponding estimators above?
 
-The Horvitz-Thompson estimator is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{\pi_i}$ where $\pi_i$ is the probability of inclusion.  In the SRS case, this is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{n/N}=N\bar{Y}$.  Dividing by $N$ to estimate the mean rather than the sum gives $\bar{Y}$, which is equivalent to at the beginning.
+The Horvitz-Thompson estimator is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{\pi_i}$ where $\pi_i$ is the probability of inclusion. In the SRS case, this is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{n/N}=N\bar{Y}$. Dividing by $N$ to estimate the mean rather than the sum gives $\bar{Y}$, which is equivalent to at the beginning.
 
-In the stratified case, this is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{n_{l,i}/N_{l,i}}$ where $n_{l,i}$ is the $n_l$ that corresponds to the party affiliation of the $i^{th}$ person.  Since there are $n_l$ in each group, we have 
+In the stratified case, this is $\hat{\tau}=\sum_{i:y_i\in S}\frac{y_i}{n_{l,i}/N_{l,i}}$ where $n_{l,i}$ is the $n_l$ that corresponds to the party affiliation of the $i^{th}$ person. Since there are $n_l$ in each group, we have 
 $$\hat{\tau}=\sum_{l=1}^3\frac{N_{l}}{n_{l}}\sum_{i:y_i\in S, \textrm{Voter i in group l}}y_i=\sum_{l=1}^3\frac{N_{l}}{n_{l}}\bar{Y}_ln_l=\sum_{l=1}^3N_{l}\bar{Y}_l=N\sum_{l=1}^3p_l\bar{Y}_l$$
 so dividing by $N$ to estimate the mean rather than the total gives the same $\tilde{\mu}=\sum_{l=1}^3p_l\bar{Y}_l$ from above.
 
@@ -261,14 +262,15 @@ p1^2 * (mu_1 * (1 - mu_1)) / nl1 * (p1 * N - nl1) / (p1 * N - 1) +
   p3^2 * (mu_3 * (1 - mu_3)) / nl3 * (p3 * N - nl3) / (p3 * N - 1)
 ```
 
+\newpage
 # Realistic conjugacy
 
-In Normal-Normal conjugacies, we often assume both the group mean's variance and the observation's variance are known.  However, there are very few examples where this is actually the case.  To ameliorate this, we can either switch to a more complicated conjugate prior (e.g. Normal-Gamma) or use asymptotics.  Here, we will do the latter.  Suppose we have $\mu_i\sim\mathcal{N}(\mu_0,\sigma^2_0)$ and $Y_{i,j}\sim[\mu_i,\sigma^2_i]$ i.i.d. conditional on $\mu_i$.  This notation means $Y_{i,j}$ has mean $\mu_i$ and variance $\sigma^2_i$ conditional on $\mu_i$ and $\sigma^2_i$, but it does not place distributional assumptions on $Y_{i,j}$.
+In Normal-Normal conjugacies, we often assume both the group mean's variance and the observation's variance are known. However, there are very few examples where this is actually the case. To ameliorate this, we can either switch to a more complicated conjugate prior (e.g. Normal-Gamma) or use asymptotics. Here, we will do the latter. Suppose we have $\mu_i\sim\mathcal{N}(\mu_0,\sigma^2_0)$ and $Y_{i,j}\sim[\mu_i,\sigma^2_i]$ i.i.d. conditional on $\mu_i$. This notation means $Y_{i,j}$ has mean $\mu_i$ and variance $\sigma^2_i$ conditional on $\mu_i$ and $\sigma^2_i$, but it does not place distributional assumptions on $Y_{i,j}$.
 
 1. Conditional on $\mu_j$, show that $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma_i}}\right)\rightarrow\mathcal{N}(0,1)$$
 where $\bar{Y}_i=\frac{1}{n_i}\sum_{i=1}^{n_i}Y_{i,j}$ and $\hat{\sigma}^2_i$ is the sample variance of the $Y_{i,j}$.
 
-Since the sample variance is a consistent estimator for $\sigma^2_i$, $\hat{\sigma}^2_i\xrightarrow{p}\sigma^2_i$, so by the continuous mapping theorem $\frac{\hat{\sigma}_i}{\sigma_i}\xrightarrow{p}1$.  By the Central Limit Theorem, $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\sigma_i}\right)\rightarrow\mathcal{N}(0,1)$$ and $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\sigma_i}\right)=\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma}_i}\right)\frac{\hat{\sigma_i}}{\sigma_i}\xrightarrow{p}\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma}_i}\right)$$ by Slutsky's theorem, so $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma_i}}\right)\rightarrow\mathcal{N}(0,1)$$
+Since the sample variance is a consistent estimator for $\sigma^2_i$, $\hat{\sigma}^2_i\xrightarrow{p}\sigma^2_i$, so by the continuous mapping theorem $\frac{\hat{\sigma}_i}{\sigma_i}\xrightarrow{p}1$. By the Central Limit Theorem, $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\sigma_i}\right)\rightarrow\mathcal{N}(0,1)$$ and $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\sigma_i}\right)=\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma}_i}\right)\frac{\hat{\sigma_i}}{\sigma_i}\xrightarrow{p}\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma}_i}\right)$$ by Slutsky's theorem, so $$\sqrt{n_i}\left(\frac{\bar{Y}_{i}-\mu_i}{\hat{\sigma_i}}\right)\rightarrow\mathcal{N}(0,1)$$
 
 2. Use the approximate distribution of $\bar{Y_i}$ to write an approximate Normal-Normal conjugacy.
 
@@ -279,20 +281,20 @@ $$\begin{aligned}
 \mu_i&\sim\mathcal{N}(\mu_0,\sigma^2_0)
 \end{aligned}$$
 
-3. Suppose we observed $Y_{i,1}, ..., Y_{i,n_i}$.  Find the posterior distribution for $\mu_i$.
+3. Suppose we observed $Y_{i,1}, ..., Y_{i,n_i}$. Find the posterior distribution for $\mu_i$.
 
 Using the Normal-Normal conjugacy results, 
-$$\begin{aligned}\mu_i|\vec{Y_i}&\sim\mathcal{N}(\mu_1,\sigma_1^2)\\
+$$\begin{aligned}\mu_i|\vv{Y_i}&\sim\mathcal{N}(\mu_1,\sigma_1^2)\\
 \sigma^2_1&=\frac{1}{\frac{1}{\sigma_0^2}+\frac{n_i}{\hat{\sigma}_i^2}}\\
 \mu_1&=\sigma_1^2\left(\frac{\mu_0}{\sigma_0^2}+\frac{n_i\bar{Y_i}}{\hat{\sigma}_i^2}\right)
 \end{aligned}$$
 
-4. Recall Stein's theorem that for $Y_j\sim\mathcal{N}(\mu_j,\sigma^2)$ independent for $j=1,...,K$ with $K\geq 3$, the $\mu_j$ unknown, and $\sigma^2$ known, for squared loss $\sum_{j=1}^K(\mu_j-\hat{\mu_j})^2$, the MLE $\vec{Y}$ is inadmissible.  The James Stein estimator 
-$$\hat{\mu}_{JS,j}=\left(1-\frac{(K-2)\sigma^2}{\sum_{j=1}^KY_j^2}\right)Y_j$$ has strictly lower risk.  However, as before, we run into the complication that $\sigma^2$ is almost never known, and there's no reason to think the variances would be equal.  Using the approximate distribution from above, find the James Stein estimator for $\vec{\mu}$.  The estimator should make no assumptions about the variances or sample sizes being equal.
+4. Recall Stein's theorem that for $Y_j\sim\mathcal{N}(\mu_j,\sigma^2)$ independent for $j=1,...,K$ with $K\geq 3$, the $\mu_j$ unknown, and $\sigma^2$ known, for squared loss $\sum_{j=1}^K(\mu_j-\hat{\mu_j})^2$, the MLE $\vv{Y}$ is inadmissible. The James Stein estimator 
+$$\hat{\mu}_{JS,j}=\left(1-\frac{(K-2)\sigma^2}{\sum_{j=1}^KY_j^2}\right)Y_j$$ has strictly lower risk. However, as before, we run into the complication that $\sigma^2$ is almost never known, and there's no reason to think the variances would be equal. Using the approximate distribution from above, find the James Stein estimator for $\vv{\mu}$. The estimator should make no assumptions about the variances or sample sizes being equal.
 
 Using the approximation from 2, $$\frac{\bar{Y_i}-\mu_i}{\sqrt{\hat{\sigma}_i^2/n_i}}\dot\sim\mathcal{N}\left(0, 1\right)\implies \frac{\bar{Y_i}}{\sqrt{\hat{\sigma}_i^2/n_i}}\dot\sim\mathcal{N}\left(\frac{\mu_i}{\sqrt{\sigma_i^2/n_i}}, 1\right)$$  Matching the formula above, we get $$\frac{\hat{\mu}_{JS,i}}{\sqrt{\sigma_i^2/n_i}}=\left(1-\frac{(K-2)}{\sum_{j=1}^K\left(\frac{\bar{Y_i}}{\sqrt{\hat{\sigma}_i^2/n_i}}\right)^2}\right)\frac{\bar{Y_i}}{\sqrt{\hat{\sigma}_i^2/n_i}}\implies \hat{\mu}_{JS,i}\approx\left(1-\frac{(K-2)}{\sum_{j=1}^K\left(\frac{\bar{Y_i}}{\sqrt{\hat{\sigma}_i^2/n_i}}\right)^2}\right)\bar{Y_i}$$
 
-5. The following simulation compares the two estimators on a small set of exponential random variables with the hierarchical mean added.  Note that the only assumption made here was that the mean parameter is distributed Normally, not that the individual observations are also Normal, that they have the same variance, or that they have the same sample size.  Remarkably, this works even with all the $n$ less than 10, quite far from $n=\infty$.
+5. The following simulation compares the two estimators on a small set of exponential random variables with the hierarchical mean added. Note that we didn't assume that the individual observations are Normal, that they have the same variance, or that they have the same sample size. Remarkably, this works even with all the $n$ less than 10, quite far from $n=\infty$.
 
 ```{r, cache=T}
 mu_0 <- 5

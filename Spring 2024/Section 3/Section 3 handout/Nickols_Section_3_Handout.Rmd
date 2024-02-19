@@ -29,7 +29,7 @@ urlcolor: blue
 
 Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 3 due...
+Pset 3 due 2/16.
 
 ```{r, echo=F, warning=F, message=F, cache=T}
 list.of.packages <- c("ggplot2", "gridExtra")
@@ -62,7 +62,7 @@ p1 <- ggplot(stocks, aes(x=abs(close_diff))) +
   geom_histogram(breaks = seq(0, 6, 0.2)) + 
   theme_bw() + 
   ylab("Days") + 
-  xlab("Percent difference\nin adjusted closing price")
+  xlab("Absolute percent difference\nin adjusted closing price")
 
 p2 <- ggplot(stocks, aes(x = time_step, y = close_diff)) + 
   geom_point() + 
@@ -74,51 +74,29 @@ p2 <- ggplot(stocks, aes(x = time_step, y = close_diff)) +
 grid.arrange(p1, p2, ncol=2)
 ```
 
-In this section, we will be modeling the day-to-day percent differences in the adjusted closing price of the S&P 500 as $Y_1,...,Y_n\sim\textrm{Expo}(\lambda)$.
+In this section, we will be modeling the day-to-day absolute percent differences in the adjusted closing price of the S&P 500 as $Y_1,...,Y_n\sim\textrm{Expo}(\lambda)$.
 
-1. Find the score of $\lambda$ (recall that the score is $\frac{\partial}{\partial \lambda}\ell(\lambda; \vv{y})$) in terms of the sample mean and verify that $E(s(\lambda^*;\vv{Y}))=0$.
+1. Find the score of $\lambda$ (the score is $\frac{\partial}{\partial \lambda}\ell(\lambda; \vv{y})$) in terms of the sample mean and verify that $E(s(\lambda^*;\vv{Y}))=0$. (This equality was the last part of Neil's Thursday lecture.)
 
 \vspace{5 cm}
 
-2. Verify the information equality by showing $-E(s'(\lambda;\vv{Y}))=\textrm{Var}(s(\lambda; \vv{Y}))$.
+2. Show that the MLE of $\hat{\lambda}$ is consistent for $\lambda$. That is, show that $\hat{\lambda}\rightarrow \lambda$ as $n\rightarrow\infty$ by showing the MSE goes to 0, a LLN holds, making a claim using the CMT, or showing convergence directly.
 
 \vspace{3 cm}
 
-3. Find the Fisher information $\mathcal{I}_{\vv{Y}}(\lambda^*)$. Then, find a function $g$ such that $\mathcal{I}_{\vv{Y}}(g(\lambda^*))$ is constant (this is the variance stabilizing transformation of the Exponential distribution). Hint: Recall that the Fisher information for a transformation is $\mathcal{I}_{\vv{Y}}(g(\lambda^*))=\frac{\mathcal{I}_{\vv{Y}}(\lambda^*)}{g'(\lambda^*)^2}$.
-
-\vspace{5 cm}
-
-4. Verify this is indeed the variance stabilizing transformation through simulation.
-
-```{r}
-set.seed(111)
-
-sapply(c(0.001, 0.01, 0.1, 1, 10, 100, 1000), function(lambda) var(log(rexp(100000, lambda))))
-```
-
-\vspace{1 cm}
-
-5. Show that the MLE of $\hat{\lambda}$ is consistent for $\lambda$. That is, show that $\hat{\lambda}\rightarrow \lambda$ as $n\rightarrow\infty$ by showing the MSE goes to 0, a LLN holds, making a claim using the CMT, or showing convergence directly.
-
-\vspace{3 cm}
-
-6. Find the asymptotic distribution of the MLE and its approximate distribution for large $n$.
-
-\vspace{5 cm}
-
-7. In his book *The Black Swan*, Nassim Taleb argues that part of the reason for the 2008 financial crisis was a failure to model market fluctuations and assign sufficient probability to extreme events. Let us consider daily absolute differences above $\tau$ to be extreme events. Let $X_i=I(Y_i>\tau)$. Show that $\bar{X}$ is consistent for $p=P(Y_i>\tau)$ first by using MSE and then by using the law of large numbers. 
+3. In his book *The Black Swan*, Nassim Taleb argues that part of the reason for the 2008 financial crisis was a failure to model market fluctuations and assign sufficient probability to extreme events. Let us consider daily absolute differences above $\tau$ to be extreme events. Let $X_i=I(Y_i>\tau)$. Show that $\bar{X}$ is consistent for $p=P(Y_i>\tau)$ first by using MSE and then by using the law of large numbers. 
 
 \vspace{6 cm}
 
-8. Find the asymptotic distribution of $\bar{X}$ and its approximate distribution for large $n$ in terms of $\lambda$.
+4. Find the asymptotic distribution of $\bar{X}$ and its approximate distribution for large $n$ in terms of $\lambda$.
 
 \vspace{5 cm}
 
-9. Now, suppose we estimate $P(Y_i>\tau)$ with $\hat{p}=e^{-\hat{\lambda}\tau}$. Find the asymptotic distribution of $\hat{p}$ and its approximate distribution for large $n$.
+5. Now, suppose we estimate $P(Y_i>\tau)$ with $\hat{p}=e^{-\hat{\lambda}\tau}$. Given that $$\sqrt{n}(\hat{\lambda}-\lambda^*)\rightarrow\mathcal{N}\left(0, \lambda^{*2}\right)$$ (we'll see how to find this in future weeks), find the asymptotic distribution of $\hat{p}$ and its approximate distribution for large $n$.
 
 \vspace{7 cm}
 
-10. The distributions in 8 and 9 should have the same mean. However, the variances are different. The following are the estimated standard errors of each estimator with $\tau=5$. Explain why the results are what they are.
+6. The distributions in 4 and 5 should have the same mean. However, the variances are different. The following are the estimated standard errors of each estimator with $\tau=5$. Explain why the results are what they are.
 
 ```{r, echo=F}
 lambda_hat <- 1/mean(abs(stocks$close_diff))
@@ -130,7 +108,7 @@ round(c("Xbar SE" = sqrt(exp(-lambda_hat * tau) * (1-exp(-lambda_hat * tau)) / n
 
 \vspace{3 cm}
 
-11. Though $\hat{p}$ is more efficient, it might be less robust. The following shows the MSEs of the two estimators for estimating $P(Y>\tau)$ when $Y\sim\textrm{Expo}(0.5)$ (the correct model) and $Y\sim\textrm{Log-Normal}(0.1, 1)$ (an incorrect model). Again, we have used $\tau=5$ and $n=100$ with $10^5$ simulations.
+7. Though $\hat{p}$ is more efficient, it might be less robust. The following shows the MSEs of the two estimators for estimating $P(Y>\tau)$ when $Y\sim\textrm{Expo}(0.5)$ (the correct model) and $Y\sim\textrm{Log-Normal}(0.1, 1)$ (an incorrect model). Again, we have used $\tau=5$ and $n=100$ with $10^5$ simulations.
 
 ```{r, cache=T, echo=F}
 nsims <- 10^5
@@ -169,7 +147,7 @@ Ty Mup is taking an exam with $n$ equally hard questions. He has a probability $
 
 \vspace{6 cm}
 
-2. Unfortunately, [the day is February 2nd in Punxsutawney](https://en.wikipedia.org/wiki/Groundhog_Day_(film)) and Ty is destined to repeat this day $d$ times, scoring i.i.d $Y_i$ on the exams. Find the likelihood function, the log-likelihood function, the score for $p_1$ and $p_2$. (Hint: Let $m$ be the number of $0$s.)
+2. Unfortunately, [the day is February 2nd in Punxsutawney](https://en.wikipedia.org/wiki/Groundhog_Day_(film)) and Ty is destined to repeat this day $d$ times, scoring i.i.d $Y_i$ on the exams. Find the likelihood function, the log-likelihood function, and the score for $p_1$ and $p_2$. (Hint: Let $m$ be the number of $0$s.)
 
 \vspace{10 cm}
 
@@ -177,15 +155,7 @@ Ty Mup is taking an exam with $n$ equally hard questions. He has a probability $
 
 \vspace{1 cm}
 
-4. Find the Fisher information for $p_1$. (Hint: Write $M$ as $M_1+M_2$ where $M_1$ is the number of days Ty slept through the alarm and $M_2$ is the number of times he took the test and got a 0.)
-
-\vspace{8 cm}
-
-5. Check that this Fisher information gives the correct result in the cases $p_2=1$ and $p_2=0$. 
-
-\vspace{6 cm}
-
-6. Let $B$ be the event that Ty sleeps through the alarm at least once. Show that as $d\rightarrow\infty$,
+4. Let $B$ be the event that Ty sleeps through the alarm at least once. Show that as $d\rightarrow\infty$,
 $$I_B\frac{d^{1/2}(\bar{Y}-(1-p_1)np_2)}{\sqrt{np_2(1-p_2)(1-p_1)+(np_2)^2p_1(1-p_1)}}\xrightarrow{d}\mathcal{N}(0,1)$$
 \vspace{10 cm}
 

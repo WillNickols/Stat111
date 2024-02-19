@@ -27,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
+Make sure to sign in on both Google forms: [this one](https://forms.gle/BS4XXnzdR53ZhxDS9) and [this one](https://bit.ly/stat111attend).
 
-Pset 2 due...
+Pset 2 due Friday 2/9.
 
 ```{r, echo=F, warning=F, message=F, cache=T}
 list.of.packages <- c("ggplot2", "gridExtra")

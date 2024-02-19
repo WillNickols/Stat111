@@ -9,6 +9,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{wrapfig}
 - \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -26,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 8 due Friday 4/7
+Pset 8...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra", "matrixStats")
@@ -42,7 +43,7 @@ library(matrixStats)
 
 # COVID-19 Impact
 
-These questions will deal with a dataset listing deaths from COVID-19 per county from January 1st, 2020 to March 25th, 2023 [available here](https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-in-the-United-St/kn79-hsxy) and 2020 county population numbers [available here](https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html).  The CDC does not make data available for counties with fewer than 10 deaths.  We could use a censored data approach, but for simplicity we will restrict our focus to counties with at least 10 deaths.
+These questions will deal with a dataset listing deaths from COVID-19 per county from January 1st, 2020 to March 25th, 2023 [available here](https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-in-the-United-St/kn79-hsxy) and 2020 county population numbers [available here](https://www.census.gov/data/tables/time-series/demo/popest/2020s-counties-total.html). The CDC does not make data available for counties with fewer than 10 deaths. We could use a censored data approach, but for simplicity we will restrict our focus to counties with at least 10 deaths.
 
 ```{r, warning=FALSE, echo=F, fig.width=5, fig.height=3, fig.align='center'}
 covid_deaths <- read.csv("data/covid_deaths.csv")
@@ -55,11 +56,11 @@ ggplot(covid_deaths, aes(x=population, y=deaths/population)) +
   ylab("COVID-19 Death rate") + 
   theme_bw()
 ```
-1. Suppose we wanted to know which counties had the best and worst COVID-19 responses.  Name a few reasons we should not just look at the counties with the maximum and minimum raw death rates.
+1. Suppose we wanted to know which counties had the best and worst COVID-19 responses. Name a few reasons we should not just look at the counties with the maximum and minimum raw death rates.
 
-First, the death rates are not demographically adjusted, so counties with mostly older people will likely have higher death rates regardless of how effective the response was.  Second, counties with fewer people will have more variable death rates (as in the kidney cancer example), but their responses might not have been particularly good or bad.
+First, the death rates are not demographically adjusted, so counties with mostly older people will likely have higher death rates regardless of how effective the response was. Second, counties with fewer people will have more variable death rates (as in the kidney cancer example), but their responses might not have been particularly good or bad.
 
-2. We will model the deaths in a particular county as $Y_i\sim\textrm{Pois}(c\lambda_in_i)$ where $c=3.23$ is the number of years included in the data set, $\lambda_i$ is the county's annual death rate from COVID-19, and $n_i$ is the county's population.  Also, suppose we use the prior $\lambda_i\sim\textrm{Gamma}(a,b)$.  Write the prior density for $\lambda_i$, the likelihood function for $\lambda_i$, and the posterior density for $\lambda_i$.  What is the posterior distribution of $\lambda_i$?
+2. We will model the deaths in a particular county as $Y_i\sim\textrm{Pois}(c\lambda_in_i)$ where $c=3.23$ is the number of years included in the data set, $\lambda_i$ is the county's annual death rate from COVID-19, and $n_i$ is the county's population. Also, suppose we use the prior $\lambda_i\sim\textrm{Gamma}(a,b)$. Write the prior density for $\lambda_i$, the likelihood function for $\lambda_i$, and the posterior density for $\lambda_i$. What is the posterior distribution of $\lambda_i$?
 
 The prior density is $$\frac{1}{\Gamma(a)}(b\lambda_i)^ae^{-b\lambda_i}\lambda_i^{-1}$$
 The likelihood is $$L(\lambda_i|Y_i)=e^{-cn_i\lambda_i}\lambda_i^{Y_i}$$
@@ -71,7 +72,7 @@ $$\begin{aligned}f(\lambda|Y_i)&\propto P(Y_i=y_i|\lambda_i)f(\lambda)\\
 
 Pattern matching shows that this is proportional to the $\textrm{Gamma}(Y_i+a, b+cn_i)$ PDF, so $$\lambda_i|Y_i\sim\textrm{Gamma}(Y_i+a, b+cn_i)$$
 
-3. The following plot shows the prior, the likelihood, and the posterior for $b=100000$, $a=b\cdot 0.001$ for Middlesex, MA (the county that contains Harvard) and Franklin county, a county in western Massachusetts.  Middlesex has a population of $n=1632002$ while Franklin has a population of $n=71035$.  Interpret the plots.
+3. The following plot shows the prior, the likelihood, and the posterior for $b=100000$, $a=b\cdot 0.001$ for Middlesex, MA (the county that contains Harvard) and Franklin county, a county in western Massachusetts. Middlesex has a population of $n=1632002$ while Franklin has a population of $n=71035$. Interpret the plots.
 
 ```{r, echo=F, fig.width=7, fig.height=3, fig.align='center', warning=F}
 make_df_for_plot <- function(x, y, n) {
@@ -95,7 +96,7 @@ df <- make_df_for_plot(x, y, n)
 
 p1 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
   geom_line() + 
-  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20), limits = c(10^-100, 10^4)) + 
   ylab("Density") + 
   theme_bw() + 
   theme(legend.position = "none") + 
@@ -109,7 +110,7 @@ df <- make_df_for_plot(x, y, n)
 
 p2 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihood", "Posterior")))) + 
   geom_line() + 
-  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20)) + 
+  scale_y_continuous(trans = 'log', breaks = 10^seq(-100, 0, 20), limits = c(10^-100, 10^4)) + 
   ylab("Density") + 
   theme_bw() + 
   theme(legend.title = element_blank()) + 
@@ -118,15 +119,15 @@ p2 <- ggplot(df, aes(x=lambda, y=density, col=factor(type, c("Prior", "Likelihoo
 grid.arrange(p1, p2, ncol=2, widths=c(1,1.4))
 ```
 
-Both plots show that the posterior is between the prior and the likelihood.  However, since Middlesex is much larger, its posterior is much closer to its likelihood than its prior.
+Both plots show that the posterior is between the prior and the likelihood. However, since Middlesex is much larger, its posterior is much closer to its likelihood than its prior.
 
-4. Show that the posterior mean $E(\lambda_i|Y_i)$ can be interpreted as a weighted average of the observed death rate and the prior mean.  If we view $a$ and $b$ as "pseudocounts" of the number of deaths and the population, give an interpretation of the posterior mean for large $b$ and for large $n_i$.
+4. Show that the posterior mean $E(\lambda_i|Y_i)$ can be interpreted as a weighted average of the observed death rate and the prior mean. If we view $a$ and $b$ as "pseudocounts" of the number of deaths and the population, give an interpretation of the posterior mean for large $b$ and for large $n_i$.
 
 From the expectation of a Gamma distribution,
 $$E(\lambda_i|Y_i)=\frac{Y_i+a}{b+cn_i}=\frac{Y_i}{cn_i}\frac{cn_i}{b+cn_i}+\frac{a}{b}\frac{b}{b+cn_i}$$
-so the posterior mean is a weighted average of $Y_i/(cn_i)$ with weight $\frac{cn_i}{b+cn_i}$ and $a/b$ with weight $\frac{b}{b+cn_i}$.  When $b$ is large, our pseudocount prior population is large, so the prior mean accounts for most of the posterior mean.  When $n_i$ is large, our observed data is large, so the observed mean accounts for most of the posterior mean.
+so the posterior mean is a weighted average of $Y_i/(cn_i)$ with weight $\frac{cn_i}{b+cn_i}$ and $a/b$ with weight $\frac{b}{b+cn_i}$. When $b$ is large, our pseudocount prior population is large, so the prior mean accounts for most of the posterior mean. When $n_i$ is large, our observed data is large, so the observed mean accounts for most of the posterior mean.
 
-5. Suppose (wrongly) that the COVID-19 death rate does not change from year to year.  What is the posterior predictive distribution of COVID-19 deaths for 2024 ($Y'$) for a county with $Y$ deaths from 2020 to 2023 and $n$ people?  Verify that the expected value and variance of this distribution agree with what we would obtain through Adam's and Eve's laws conditioning on $\lambda$.
+5. Suppose (wrongly) that the COVID-19 death rate does not change from year to year. What is the posterior predictive distribution of COVID-19 deaths for 2024 ($Y'$) for a county with $Y$ deaths from 2020 to 2023 and $n$ people?  Verify that the expected value and variance of this distribution agree with what we would obtain through Adam's and Eve's laws conditioning on $\lambda$.
 
 By the Poisson-Gamma-Negative-Binomial conjugacy, with $\lambda|Y\sim\textrm{Gamma}(a+Y,b+cn)$ and $Y'\sim\textrm{Pois}(n\lambda)$,
 $Y'\sim\textrm{NBin}\left(a+Y, \frac{b+cn}{b+cn+n}\right)$.
@@ -138,7 +139,7 @@ $$\begin{aligned}\textrm{Var}(Y')&=E(\textrm{Var}(Y'|\lambda))+\textrm{Var}(E(Y'
 &=n\frac{a+Y}{b+cn}+n^2\frac{a+Y}{(b+cn)^2}\\
 \end{aligned}$$ and the variance of the negative binomial distribution is $$(a+Y)\frac{n}{b+cn+n}\left(\frac{b+cn+n}{b+cn}\right)^2=n\frac{(a+Y)(b+cn+n)}{(b+cn)^2}=n\frac{a+Y}{b+cn}+n^2\frac{a+Y}{(b+cn)^2}$$
 
-6. Compare the MLE for $\lambda_i$ to the posterior mean of $\lambda_i$ for the counties with the highest COVID-19 death rates.  The red line shows the prior mean.
+6. Compare the MLE for $\lambda_i$ to the posterior mean of $\lambda_i$ for the counties with the highest COVID-19 death rates. The red line shows the prior mean.
 
 ```{r, echo=F, fig.width=5, fig.height=3, fig.align='center'}
 c = 3.23
@@ -170,33 +171,33 @@ ggplot(covid_deaths, aes(x=population, y=adjusted_rate)) +
   theme_bw() + 
   geom_hline(yintercept = a/b, col="red")
 ```
-Though some of the counties with the highest death rates before still have the highest death rates after, all the estimated rates are much lower.  Interestingly, Martinsville and Winchester had about the same rate before, but Winchester has a significantly higher rate after because its population size is larger.  We also see that the two very small counties at the end of the raw list are dropped and replaced with much larger counties in the adjusted list.
+Though some of the counties with the highest death rates before still have the highest death rates after, all the estimated rates are much lower. Interestingly, Martinsville and Winchester had about the same rate before, but Winchester has a significantly higher rate after because its population size is larger. We also see that the two very small counties at the end of the raw list are dropped and replaced with much larger counties in the adjusted list.
 
 \newpage
 # Chat GPT-4 testing
 
-1. You are testing Chat GPT-4's question answering abilities, and you want to evaluate the probability $p$ of it answering a question correctly.  To model your initial uncertainty about its abilities, you use the noninformative prior $p\sim\textrm{Unif}(0,1)$.  Assume we have not yet performed any tests.  How many questions would Chat GPT-4 need to get correct in a row before we will be $c$ confident $p$ is at least $\tau$?  Recall that the PDF of a Beta($a,b$) random variable is $\frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}x^{a-1}(1-x)^{b-1}$.
+1. You are testing Chat GPT-4's question answering abilities, and you want to evaluate the probability $p$ of it answering a question correctly. To model your initial uncertainty about its abilities, you use the noninformative prior $p\sim\textrm{Unif}(0,1)$. Assume we have not yet performed any tests. How many questions would Chat GPT-4 need to get correct in a row before we will be $c$ confident $p$ is at least $\tau$?  Recall that the PDF of a Beta($a,b$) random variable is $\frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}x^{a-1}(1-x)^{b-1}$.
 
-Let $y$ be the number of questions Chat GPT-4 gets right in a row.  By the Beta-Binomial conjugacy, if the system gets $y$ questions correct in a row, we will update $p$ to $p\sim\textrm{Beta}(y+1,1)$.  We need our maximum $c$ credible interval to have its lower bound at least at $\tau$: $$Q_{\textrm{Beta}(y+1,1)}(1-c)\geq \tau\implies F_{\textrm{Beta}(y+1,1)}(\tau)\leq 1-c$$
+Let $y$ be the number of questions Chat GPT-4 gets right in a row. By the Beta-Binomial conjugacy, if the system gets $y$ questions correct in a row, we will update $p$ to $p\sim\textrm{Beta}(y+1,1)$. We need our maximum $c$ credible interval to have its lower bound at least at $\tau$: $$Q_{\textrm{Beta}(y+1,1)}(1-c)\geq \tau\implies F_{\textrm{Beta}(y+1,1)}(\tau)\leq 1-c$$
 Using the fact that $\Gamma(y+2)/\Gamma(y+1)=y+1$, $$\int_0^\tau (y+1)p^ydp=p^{y+1}\Big|_0^{\tau}=\tau^{y+1}\leq 1-c\implies y\geq \frac{\log(1-c)}{\log(\tau)}-1$$
-so our answer is the smallest integer larger than $\frac{\log(1-c)}{\log(\tau)}-1$.  (The inequality flip in the equation above comes from the fact that we're dividing by $\log(\tau)$ which is negative.)
+so our answer is the smallest integer larger than $\frac{\log(1-c)}{\log(\tau)}-1$. (The inequality flip in the equation above comes from the fact that we're dividing by $\log(\tau)$ which is negative.)
 
-2. Now, suppose Chat GPT-4 has answered the first $m$ questions correctly.  Find the posterior mean, median, and mode (MAP) of $p$.  Show that the MAP is equivalent to the MLE because we are using a flat prior.
+2. Now, suppose Chat GPT-4 has answered the first $m$ questions correctly. Find the posterior mean, median, and mode (MAP) of $p$. Show that the MAP is equivalent to the MLE because we are using a flat prior.
 
-The posterior mean is the mean of the $\textrm{Beta}(1+m,1)$ distribution: $\frac{m+1}{m+2}$.  The posterior median is $\tau$ such that $$\int_0^\tau (m+1)p^mdp=p^{m+1}\Big|_0^{\tau}=\tau^{m+1}=0.5\implies \tau=\left(\frac{1}{2}\right)^{\frac{1}{m+1}}$$  The posterior mode is the maximum of the density $f(m)=(m+1)p^m$ or equivalently the maximum of the log density: $\log(m+1)+m\log(p)$.  Differentiating with respect to $p$ and setting to 0 gives $\frac{m}{p}=0\implies p=\infty$.  However, $p$ is constrained to $[0,1]$, so we must check the density at the bounds.  At $p=0$, $f(m)=0$, and at $p=1$, $f(m)=m+1$, so the maximum is at $p=1$.  The MLE of a binomial is $\hat{p}=Y/n$, which is $1$ in this case, so the MAP is the same as the MLE.
+The posterior mean is the mean of the $\textrm{Beta}(1+m,1)$ distribution: $\frac{m+1}{m+2}$. The posterior median is $\tau$ such that $$\int_0^\tau (m+1)p^mdp=p^{m+1}\Big|_0^{\tau}=\tau^{m+1}=0.5\implies \tau=\left(\frac{1}{2}\right)^{\frac{1}{m+1}}$$  The posterior mode is the maximum of the density $f(m)=(m+1)p^m$ or equivalently the maximum of the log density: $\log(m+1)+m\log(p)$. Differentiating with respect to $p$ and setting to 0 gives $\frac{m}{p}=0\implies p=\infty$. However, $p$ is constrained to $[0,1]$, so we must check the density at the bounds. At $p=0$, $f(m)=0$, and at $p=1$, $f(m)=m+1$, so the maximum is at $p=1$. The MLE of a binomial is $\hat{p}=Y/n$, which is $1$ in this case, so the MAP is the same as the MLE.
 
 3. What is the probability Chat GPT-4 gets the next question correct given it got the first $m$ correct?
 
-Let $Y$ be the indicator of the system answering the next question correctly.  We have $Y\sim\textrm{Bern}(p)$ with $p\sim\textrm{Beta}(1+m,1)$.  By the fundamental bridge and Adam's law, 
+Let $Y$ be the indicator of the system answering the next question correctly. We have $Y\sim\textrm{Bern}(p)$ with $p\sim\textrm{Beta}(1+m,1)$. By the fundamental bridge and Adam's law, 
 $$P(Y=1)=E(Y)=E(E(Y|p))=E(p)=\frac{1+m}{2+m}$$
 
-4. You have $n$ more questions you plan to ask.  Explain intuitively why the probability of it getting all of these $n$ questions correct is not $\left(\frac{1+m}{2+m}\right)^n$.
+4. You have $n$ more questions you plan to ask. Explain intuitively why the probability of it getting all of these $n$ questions correct is not $\left(\frac{1+m}{2+m}\right)^n$.
 
-If all the questions were independent and we didn't update $p$ between questions, this would be the case.  However, when the system gets a question right, it is more likely that $p$ is high, so the probability of getting the next question correct increases.
+If all the questions were independent and we didn't update $p$ between questions, this would be the case. However, when the system gets a question right, it is more likely that $p$ is high, so the probability of getting the next question correct increases.
 
 5. What is the probability of Chat GPT-4 getting the next $n$ questions correct given that it got the first $m$ correct?
 
-Let $Y_i$ be an indicator of getting the $i^{th}$ question correct of the $n$ remaining.  Throughout, we will implicitly condition on the first $m$ being correct.  We are solving for:
+Let $Y_i$ be an indicator of getting the $i^{th}$ question correct of the $n$ remaining. Throughout, we will implicitly condition on the first $m$ being correct. We are solving for:
 $$P(Y_1=1,...,Y_n=1)=P(Y_n=1|Y_{n-1}=1,...,Y_1=1)\cdot...\cdot P(Y_1=1)$$
 By the same reasoning as in 3, after getting the first $i-1$ questions correct, $p\sim\textrm{Beta}(m+i, 1)$, so $$P(Y_i=1|Y_{i-1}=1,...,Y_1=1)=\frac{m+i}{1+m+i}$$
 Therefore,
@@ -206,9 +207,9 @@ $$P(Y_1=1,...,Y_n=1)=\prod_{i=1}^n \frac{m+i}{1+m+i}=\frac{m+1}{n+m+1}$$
 
 If $m=0$, we have no observations, so we have a Bayes' Billiards situation where any number of correct responses from 0 to $n$ is equally likely, each with probability $\frac{1}{n+1}$.
 
-7. Now, suppose Chat GPT-4 has gotten $a$ questions correct and $b$ questions wrong.  Updating from the original uniform prior, find the PMF of $Y$, the number of questions Chat GPT-4 will get correct out of the next $n$ questions.
+7. Now, suppose Chat GPT-4 has gotten $a$ questions correct and $b$ questions wrong. Updating from the original uniform prior, find the PMF of $Y$, the number of questions Chat GPT-4 will get correct out of the next $n$ questions.
 
-Our posterior for $p$ is $\textrm{Beta}(a+1,b+1)$.  By the law of total probability, the fact that the Beta PDF integrates to 1, properties of the $\Gamma$ function, and the fact that $a$ and $b$ are non-negative integers,
+Our posterior for $p$ is $\textrm{Beta}(a+1,b+1)$. By the law of total probability, the fact that the Beta PDF integrates to 1, properties of the $\Gamma$ function, and the fact that $a$ and $b$ are non-negative integers,
 $$\begin{aligned}P(Y=y)&=\int_0^1P(Y=y|p)f(p)dp\\
 &=\int_0^1\binom{n}{y}p^y(1-p)^{n-y}\frac{\Gamma(a+b+2)}{\Gamma(a+1)\Gamma(b+1)}p^a(1-p)^bdp\\
 &=\binom{n}{y}\frac{\Gamma(a+b+2)}{\Gamma(a+1)\Gamma(b+1)}\int_0^1p^{y+a}(1-p)^{n-y+b}dp\\
@@ -218,7 +219,7 @@ $$\begin{aligned}P(Y=y)&=\int_0^1P(Y=y|p)f(p)dp\\
 &=\frac{\binom{y+a}{y}\binom{n-y+b}{n-y}}{\binom{n+a+b+1}{n}}
 \end{aligned}$$
 We can check this is a valid PMF by ensuring $$\sum_{y=0}^n\frac{\binom{y+a}{y}\binom{n-y+b}{n-y}}{\binom{n+a+b+1}{n}}=1\iff \sum_{y=0}^n\binom{y+a}{y}\binom{n-y+b}{n-y}=\binom{n+a+b+1}{n}$$
-We will prove this using the story proof offered by [Peter Luo on Ed](https://edstem.org/us/courses/32950/discussion/2875101): First, note that $$\sum_{y=0}^n\binom{y+a}{y}\binom{n-y+b}{n-y}=\sum_{y=0}^n\binom{y+a}{a}\binom{n-y+b}{b}$$ Consider $n+a+b+1$ people standing in a line, and suppose we want to select $a+b+1$ of them.  Clearly, there are $\binom{n+a+b+1}{a+b+1}=\binom{n+a+b+1}{n}$ ways to do this.  Alternatively, we can first choose the $(a+1)^{st}$ person, then choose $a$ people to his left and $b$ people to his right. The $(a+1)^{st}$ person must be in position $a+1$ through $n+a+1$ if there are $a$ people to his left and $b$ to his right in a line with total length $n+a+b+1$.  Let $y+a+1$ represent the position of the $(a+1)^{st}$ person, so $y$ ranges from $0$ to $n$.  Then, there are $y+a$ people to the left, from whom we choose $a$, and there are $n-y+b$ people to his right, from whom we choose $b$.  This gives the summation, and the proof is complete.
+We will prove this using the story proof offered by [Peter Luo on Ed](https://edstem.org/us/courses/32950/discussion/2875101): First, note that $$\sum_{y=0}^n\binom{y+a}{y}\binom{n-y+b}{n-y}=\sum_{y=0}^n\binom{y+a}{a}\binom{n-y+b}{b}$$ Consider $n+a+b+1$ people standing in a line, and suppose we want to select $a+b+1$ of them. Clearly, there are $\binom{n+a+b+1}{a+b+1}=\binom{n+a+b+1}{n}$ ways to do this. Alternatively, we can first choose the $(a+1)^{st}$ person, then choose $a$ people to his left and $b$ people to his right. The $(a+1)^{st}$ person must be in position $a+1$ through $n+a+1$ if there are $a$ people to his left and $b$ to his right in a line with total length $n+a+b+1$. Let $y+a+1$ represent the position of the $(a+1)^{st}$ person, so $y$ ranges from $0$ to $n$. Then, there are $y+a$ people to the left, from whom we choose $a$, and there are $n-y+b$ people to his right, from whom we choose $b$. This gives the summation, completing the proof.
 
 
 

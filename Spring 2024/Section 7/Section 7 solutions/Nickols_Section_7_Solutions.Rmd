@@ -9,6 +9,7 @@ header-includes:
 - \usepackage[utf8]{inputenc}
 - \usepackage{wrapfig}
 - \usepackage{amsmath}
+- \usepackage{esvect}
 urlcolor: blue
 ---
 
@@ -26,9 +27,9 @@ urlcolor: blue
     \includegraphics[width=\linewidth]{section_qr_code.png}
 \end{wrapfigure}
 
-Make sure to sign in on the [google form](https://forms.gle/2PA9A94GpdmSDH2J9) (I send a list of which section questions are useful for which pset questions afterwards)
+Make sure to sign in on the [google form](https://forms.gle/BS4XXnzdR53ZhxDS9).
 
-Pset 7 due Friday 3/31
+Pset 7...
 
 ```{r, echo=F, warning=F, message=F, cache=F}
 list.of.packages <- c("ggplot2", "gridExtra", "reshape2", "viridis", "pracma")
@@ -44,7 +45,7 @@ library(pracma)
 
 # Detecting the unknown
 
-During the Covid-19 pandemic, considerable effort was put into estimating Covid-19 community case counts based on wastewater testing.  With an eye towards detecting future pandemics early, the [Nucleic Acid Observatory](https://www.naobservatory.org/) was founded in 2021 with the intention of performing daily metagenomic sequencing on wastewater and major waterways for early biological threat detection.  Because a pandemic is likely to involve a previously uncharacterized microbe, the detection will rely on the assumption that a novel threat will show exponential growth compared to the background fluctuations of other microbes.
+During the Covid-19 pandemic, researchers put considerable effort into estimating Covid-19 community case counts based on wastewater testing. With an eye towards detecting future pandemics early, the [Nucleic Acid Observatory](https://www.naobservatory.org/) was founded in 2021 with the intention of performing daily metagenomic sequencing on wastewater and major waterways for early biological threat detection. Because a pandemic is likely to involve a previously uncharacterized microbe, the detection will rely on the assumption that a novel threat will show exponential growth compared to the background fluctuations of other microbes.
 
 ```{r, fig.width=7.5, fig.height=3, fig.align='center', cache=T, echo=F}
 set.seed(111)
@@ -74,27 +75,19 @@ ggplot(x, aes(fill=Species, y=Abundance, x=Time)) +
   xlab("Time point")
 ```
 
-In the plot above, we want to be able to detect threats like species j before they become dominant.  To make these detections, we will assume the daily change in log abundance for a species is independent $Y_t\sim\mathcal{N}(\mu,\sigma^2)$ with $\mu$ and $\sigma^2$ unknown (raw species abundances in microbiome data are often assumed to have log-normal distributions).  If $\mu>0$, on the original scale, the species will grow exponentially over time, indicating a threat.
+In the plot above, we want to be able to detect threats like species j before they become dominant. To make these detections, we will assume the daily change in log abundance for a species is independent $Y_t\sim\mathcal{N}(\mu,\sigma^2)$ with $\mu$ and $\sigma^2$ unknown (raw species abundances in microbiome data are often assumed to have log-normal distributions). If $\mu>0$, on the original scale, the species will grow exponentially over time, indicating a threat.
 
-1. Write a one-sided null and alternative hypothesis.  Is this null simple or composite?
+1. Write a one-sided null and alternative hypothesis. Is this null simple or composite?
 
-$H_0:\mu\leq 0$, $H_a:\mu>0$.  We will be using $\mu=0$ as the null throughout because this is on the boundary and is therefore the hardest value of $\mu$ to reject.  This null is composite because it involves a range.
+$H_0:\mu\leq 0$, $H_a:\mu>0$. We will be using $\mu=0$ as the null throughout because this is on the boundary and is therefore the hardest value of $\mu$ to reject. This null is composite because it involves a range.
 
-2. Suppose we have observed day-to-day differences $Y_1,...,Y_n$ for a particular species.  Construct an exact test statistic and give its distribution under the null.  Show how you would find a p-value $p_1$ for the observed test statistic $t_{obs}$.  State the rejection region for a significance level $\alpha$.
+2. Suppose we have observed day-to-day differences $Y_1,...,Y_n$ for a particular species. Construct an exact test statistic and give its distribution under the null. Show how you would find a p-value $p_1$ for the observed test statistic $t_{obs}$. State the rejection region for a significance level $\alpha$.
 
-Because the day-to-day differences are Normal with unknown $\mu$ and $\sigma$, we will use the $t$-distribution.  Therefore, under the null of $\mu=0$,
+Because the day-to-day differences are Normal with unknown $\mu$ and $\sigma$, we will use the $t$-distribution. Therefore, under the null of $\mu=0$,
 $$T_{obs}=\frac{\bar{Y}}{\hat{\sigma}/\sqrt{n}}\sim t_{n-1}$$
-The p-value is obtained by looking for the probability of observing a more extreme $t_{obs}$ statistic under the null than was actually observed: $p_1=1-F_{t_{n-1}}(t_{obs})$.  The rejection region is the values of $\vec{Y}$ that would cause us to reject the null: $R=\{\vec{y}:t_{obs}>Q_{t_{n-1}}(1-\alpha)\}$ where we use $\alpha$ rather than $\alpha/2$ since the test is one-sided.
+The p-value is obtained by looking for the probability of observing a more extreme $t_{obs}$ statistic under the null than was actually observed: $p_1=1-F_{t_{n-1}}(t_{obs})$. The rejection region is the values of $\vv{Y}$ that would cause us to reject the null: $R=\{\vv{y}:t_{obs}>Q_{t_{n-1}}(1-\alpha)\}$ where we use $\alpha$ rather than $\alpha/2$ since the test is one-sided.
 
-3. Show that a confidence interval with width $2\bar{Y}$ covers $\mu$ with probability $1-2p_1$.
-
-For a confidence interval with coverage probability $\alpha$, we have 
-$$P(-Q_{t_{n-1}}(1-\alpha/2)<\frac{\bar{Y}-\mu}{\hat{\sigma}/\sqrt{n}}<Q_{t_{n-1}}(1-\alpha/2))=1-\alpha$$
-$$\implies P(\bar{Y}-Q_{t_{n-1}}(1-\alpha/2)(\hat{\sigma}/\sqrt{n})<\mu<\bar{Y}+Q_{t_{n-1}}(1-\alpha/2)(\hat{\sigma}/\sqrt{n}))=1-\alpha$$
-Thus, the confidence interval is $\bar{Y}\pm Q_{t_{n-1}}(1-\alpha/2)(\hat{\sigma}/\sqrt{n})$.  The width of this confidence interval is $2Q_{t_{n-1}}(1-\alpha/2)(\hat{\sigma}/\sqrt{n})$, so setting it equal to $2\bar{Y}$ gives $$Q_{t_{n-1}}(1-\alpha/2)(\hat{\sigma}/\sqrt{n})=\bar{Y}\implies 1 - \alpha/2=F_{t_{n-1}}\left(\frac{\bar{Y}}{\hat{\sigma}/\sqrt{n}}\right)$$
-Since $1-F_{t_{n-1}}\left(\frac{\bar{Y}}{\hat{\sigma}/\sqrt{n}}\right)=p_1$, this yields $\alpha = 2p_1$, so the confidence interval has coverage probability $1-2p_1$ as desired.  This reflects the fundamental link between hypothesis testing and confidence intervals.  If a $1-\alpha$ confidence interval (or $1-2\alpha$ since we are using a single sided test here) includes 0, we will not reject the null at a significance level of $\alpha$.
-
-4. Find the power for the test $\beta(\mu,\sigma^2)$ at significance level $\alpha$ (the probability of rejecting the null given the true parameters $\mu$ and $\sigma^2$).  Leave the answer as an expectation that could be calculated with LOTUS and explain how you would calculate it numerically.
+3. Find the power for the test $\beta(\mu,\sigma^2)$ at significance level $\alpha$ (the probability of rejecting the null given the true parameters $\mu$ and $\sigma^2$). Leave the answer as an expectation that could be calculated with LOTUS and explain how you would calculate it numerically.
 
 The power is $$\begin{aligned}\beta_1(\mu,\sigma^2, \alpha)&=P(T_{obs}>Q_{t_{n-1}}(1-\alpha))\\
 &=P(F_{t_{n-1}}(T_{obs})>1-\alpha)\\
@@ -117,24 +110,24 @@ fun <- function(x, y, mu, sigma_sq, n, alpha) {
 power_1 <- function(mu, sigma_sq, n, alpha) {
   # Integrating from 5 sds below and above should be fine for mu and sigma_sq
   integral2(fun, mu - sqrt(sigma_sq) * 5, mu + sqrt(sigma_sq) * 5, 0, 10 * n, 
-            mu=mu, sigma_sq=sigma_sq, n = n, alpha=alpha, reltol = 1e-10)$Q
+            mu=mu, sigma_sq=sigma_sq, n = n, alpha=alpha, reltol = 1e-14)$Q
 }
 ```
 
-5. Another way to test our hypotheses is to use the proportion of days the abundance of a species increased.  Let $I_i$ be the indicator that $Y_i>0$.  Construct a test statistic based on $I_i$ and give its distribution under the null.  Show how you would find a p-value for the observed test statistic.  Can this test be constructed to give an exact type I error rate of $\alpha=0.05$?
+4. Another way to test our hypotheses is to use the proportion of days the abundance of a species increased. Let $I_i$ be the indicator that $Y_i>0$. Construct a test statistic based on $I_i$ and give its distribution under the null. Show how you would find a p-value for the observed test statistic. Can this test be constructed to give an exact type I error rate of $\alpha=0.05$?
 
-Under the null, the population is equally likely to increase or decrease, so $P(I_i=1)=1/2$.  Therefore, under the null, the test statistic $S=\sum_{i=1}^nI_i\sim\textrm{Bin}(n,1/2)$.  We can obtain an exact p-value (the probability of seeing data as extreme or more extreme under the null) by using the CDF of the binomial: $p_2=1-F_{Bin(n,1/2)}(S-1)$.  Since the test statistic takes on discrete values, the p-value will also take on discrete values, and we cannot ensure that the type I error rate is exactly $\alpha$.
+Under the null, the population is equally likely to increase or decrease, so $P(I_i=1)=1/2$. Therefore, under the null, the test statistic $S=\sum_{i=1}^nI_i\sim\textrm{Bin}(n,1/2)$. We can obtain an exact p-value (the probability of seeing data as extreme or more extreme under the null) by using the CDF of the binomial: $p_2=1-F_{Bin(n,1/2)}(S-1)$. Since the test statistic takes on discrete values, the p-value will also take on discrete values, and we cannot ensure that the type I error rate is exactly $\alpha$.
 
-6. Find the power for the test $\beta(\mu,\sigma^2, \alpha)$.  How does this compare to before?
+5. Find the power for the test $\beta(\mu,\sigma^2, \alpha)$. How does this compare to before?
 
 In general, the probability the microbe will increase in abundance is 
 $$P(I_i=1)=P(Y_i>0)=P\left(\frac{Y_i-\mu}{\sigma}>-\mu/\sigma\right)=1-\Phi\left(-\mu/\sigma\right)=\Phi\left(\mu/\sigma\right)$$
-Therefore, $S\sim\textrm{Bin}(n, \Phi\left(\mu/\sigma\right))$.  Then, the power is 
+Therefore, $S\sim\textrm{Bin}(n, \Phi\left(\mu/\sigma\right))$. Then, the power is 
 $$\begin{aligned}\beta_2(\mu,\sigma^2, \alpha)&=P(S\geq Q_{Bin(n,1/2)}(1-\alpha)+1)\\
 &=1-\sum_{k=0}^{Q_{Bin(n,1/2)}(1-\alpha)}\binom{n}{k}\left(\Phi\left(\mu/\sigma\right)\right)^k\left(1-\Phi\left(\mu/\sigma\right)\right)^{n-k}
 \end{aligned}$$
 
-7. Fixing $\sigma^2=1$ and $\alpha=0.05$, the following plot shows the power of each method as a function of $\mu$ from $\mu=0$ to $\mu=2.5$ on the log scale for $n=10$.  Which method performs better and why?  Why is the first method so jumpy?  Why is the second method not 0.05 at $\mu=0$?
+6. Fixing $\sigma^2=1$ and $\alpha=0.05$, the following plot shows the power of each method as a function of $\mu$ from $\mu=0$ to $\mu=2.5$ on the log scale for $n=10$. Which method performs better and why?  Why is the first method so jumpy?  Why is the second method not 0.05 at $\mu=0$?
 
 ```{r, echo=F, fig.width=7.5, fig.height=3, fig.align='center', cache=T}
 sigma_sq <- 1
@@ -190,15 +183,15 @@ p2 <- ggplot(results_mat, aes(x=mu, y=value, col=variable)) +
 grid.arrange(p1, p2, ncol=2)
 ```
 
-The first method is more powerful because it places more restrictive assumptions on the distribution; method 2 lacks power by up to 0.3 relative to method 1 depending on $\mu$.  Both are more powerful with more days of observations.  Method 1's power is jumpy because it is calculated with numeric integration.  The second method is not 0.05 at $\mu=0$ because it is based on a discrete distribution, so it will have a type 1 error rate of at most, but not necessarily, $\alpha=0.05$.
+The first method is more powerful because it places more restrictive assumptions on the distribution; method 2 lacks power by up to 0.3 relative to method 1 depending on $\mu$. Both are more powerful with more days of observations. Method 1's power is jumpy because it is calculated with numeric integration. The second method is not 0.05 at $\mu=0$ because it is based on a discrete distribution, so it will have a type 1 error rate of at most, but not necessarily, $\alpha=0.05$.
 
-8. A receiver operator characteristic (ROC) curve plots the true positive rate against the false positive rate to show the accuracy of a binary predictor.  The curve can be considered the result of evaluating many thresholds and plotting the true positive and false positive rate at each.  A curve that goes from (0,0) to (0,1) to (1,1) is a perfect classifier, and a curve that follows the $y=x$ line shows no predictive value.  Give two pairs of parametric equations that would give a proper ROC curve for each method.
+7. A receiver operator characteristic (ROC) curve plots the true positive rate against the false positive rate to show the accuracy of a binary predictor. The curve can be considered the result of evaluating many thresholds and plotting the true positive and false positive rate at each. A curve that goes from (0,0) to (0,1) to (1,1) is a perfect classifier, and a curve that follows the $y=x$ line shows no predictive value. Give two pairs of parametric equations that would give a proper ROC curve for each method.
 
-For method 1, we have $\textrm{FPR}(\alpha)=\alpha$ and $\textrm{TPR}(\alpha)=\beta_1(\mu,\sigma^2,\alpha)$.  For method 2, we have $\textrm{FPR}(\alpha)=1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha))$ and $\textrm{TPR}(\alpha)=\beta_2(\mu,\sigma^2,\alpha)$.
+For method 1, we have $\textrm{FPR}(\alpha)=\alpha$ and $\textrm{TPR}(\alpha)=\beta_1(\mu,\sigma^2,\alpha)$. For method 2, we have $\textrm{FPR}(\alpha)=1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha))$ and $\textrm{TPR}(\alpha)=\beta_2(\mu,\sigma^2,\alpha)$.
 
 For $\mu=0.5$, $\sigma^2=1$, and $n=10$, these give the curves:
 
-```{r, fig.width=5, fig.height=3, fig.align='center', cache=T}
+```{r, fig.width=5, fig.height=3, fig.align='center', cache=T, echo=F}
 mu <- 0.5
 n <- 10
 sigma_sq <- 1
@@ -213,19 +206,19 @@ ggplot(plot_df, aes(x=FPR, y=TPR, col=Method)) +
 ```
 Both show moderate but not excellent discriminatory power.
 
-9. The vast majority of tested microbes will not be pathogenic.  In particular, assume that 1 out of every $k$ microbes is pathogenic for some large $k$.  The false discovery rate is the proportion of tests called as significant in which the null is actually true.  What is the false discovery rate for each test as a function of $k, n, \mu, \sigma^2, \alpha$?  What are these for large values of $k$?  What does this indicate?
+8. The vast majority of tested microbes will not be pathogenic. In particular, assume that 1 out of every $k$ microbes is pathogenic for some large $k$. The false discovery rate is the proportion of tests called as significant in which the null is actually true. What is the false discovery rate for each test as a function of $k, n, \mu, \sigma^2, \alpha$?  What are these for large values of $k$?  What does this indicate?
 
 Using Bayes' rule, for method $1$ we have $$\textrm{FDR}(k, n, \mu, \sigma^2, \alpha)=\frac{\frac{k-1}{k}\alpha}{\frac{k-1}{k}\alpha+\frac{1}{k}\beta_1(\mu,\sigma^2,\alpha)}=\frac{(k-1)\alpha}{(k-1)\alpha+\beta_1(\mu,\sigma^2,\alpha)}$$
 
 For method $2$ we have $$\begin{aligned}\textrm{FDR}(k, n, \mu, \sigma^2, \alpha)&=\frac{\frac{k-1}{k}(1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha)))}{\frac{k-1}{k}(1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha)))+\frac{1}{k}\beta_2(\mu,\sigma^2,\alpha)}\\
 &=\frac{(k-1)(1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha)))}{(k-1)(1-F_{Bin(n,1/2)}(Q_{Bin(n,1/2)}(1-\alpha)))+\beta_2(\mu,\sigma^2,\alpha)}
 \end{aligned}$$
-for the maximum integer $y$ such that $F_{Bin(n,1/2)}(y)\leq \alpha$.  For a fixed $\alpha$, since $\beta_1$ and $\beta_2$ are between 0 and 1, when $k$ is large, these will be approximately 1: almost all microbes flagged as pathogenic exponential replicators will not actually be threats.
+For a fixed $\alpha$, since $\beta_1$ and $\beta_2$ are between 0 and 1, when $k$ is large, these will be approximately 1: almost all microbes flagged as pathogenic exponential replicators will not actually be threats.
 
-10. Perform a Wald test based on the second test statistic.  What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that for $\hat{p}=\frac{1}{n}\sum_{i=1}^nI_i$, the MLE for the true proportion of times the microbe's abundance increases, $\hat{p}\xrightarrow{d}\mathcal{N}(p,\mathcal{I}_{\vec{Y}}^{-1}(p))$ with $\mathcal{I}_{\vec{Y}}(p)=\frac{n}{p(1-p)}$.
+9. Perform a Wald test based on the second test statistic. What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that for $\hat{p}=\frac{1}{n}\sum_{i=1}^nI_i$, the MLE for the true proportion of times the microbe's abundance increases, $\hat{p}\xrightarrow{d}\mathcal{N}(p,\mathcal{I}_{\vv{Y}}^{-1}(p))$ with $\mathcal{I}_{\vv{Y}}(p)=\frac{n}{p(1-p)}$.
 
-Under the null, $\hat{p}\xrightarrow{d}\mathcal{N}(1/2,\mathcal{I}_{\vec{Y}}^{-1}(1/2))$, so for large $n$ $$\frac{\sqrt{n}\left(\hat{p}-1/2\right)}{\sqrt{1/2(1-1/2)}}=2\sqrt{n}\left(\hat{p}-1/2\right)\sim\mathcal{N}(0, 1)$$
-approximately, so we reject $H_0$ if $2\sqrt{n}\left(\hat{p}-1/2\right)>Q_{\mathcal{N}(0,1)}(1-\alpha)$.  For $\hat{p}=0.8$ and $n=10$, $2\sqrt{n}\left(\hat{p}-1/2\right)\approx 1.90$, which gives a p-value of $0.029$.
+Under the null, $\hat{p}\xrightarrow{d}\mathcal{N}(1/2,\mathcal{I}_{\vv{Y}}^{-1}(1/2))$, so for large $n$ $$\frac{\sqrt{n}\left(\hat{p}-1/2\right)}{\sqrt{1/2(1-1/2)}}=2\sqrt{n}\left(\hat{p}-1/2\right)\sim\mathcal{N}(0, 1)$$
+approximately, so we reject $H_0$ if $2\sqrt{n}\left(\hat{p}-1/2\right)>Q_{\mathcal{N}(0,1)}(1-\alpha)$. For $\hat{p}=0.8$ and $n=10$, $2\sqrt{n}\left(\hat{p}-1/2\right)\approx 1.90$, which gives a p-value of $0.029$.
 
 ```{r}
 n <- 10
@@ -233,22 +226,21 @@ phat <- 0.8
 pnorm(2 * sqrt(n) * (phat-0.5), 0, 1, lower.tail = F)
 ```
 
+10. Perform a likelihood ratio test based on the second test statistic. What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that the likelihood test statistic $\Lambda(\vv{Y})=2\log\left(\frac{L(\hat{p};\vv{Y})}{L(p_0;\vv{Y})}\right)\xrightarrow{d}\chi^2_1$ under the null.
 
-11. Perform a likelihood ratio test based on the second test statistic.  What is the p-value if the  microbe increased in abundance on 8 of the 10 observed days?  Recall that the likelihood test statistic $\Lambda(\vec{Y})=2\log\left(\frac{L(\hat{p};\vec{Y})}{L(p_0;\vec{Y})}\right)\xrightarrow{d}\chi^2_1$ under the null.
+Normally, we will find $\Lambda(\vv{Y})$ and reject the null if $\Lambda(\vv{Y})>Q_{\chi^2_1}(1-\alpha)$. However, because we have a one-sided null, the possible parameter space is $[1/2,1]$ with a null on the boundary. For the same reason as biohazard 8.6.3, the distribution of the test statistic under the null is now a point mass of 1/2 at 0 plus the $\chi^2$ density scaled by a factor of 1/2. Thus, we need to correct the p-value as follows: if $\hat{p}$ is less than or equal to 0.5, the p-value is 1. Otherwise, it is $1-F_{\chi^2_1}(\Lambda(\vv{Y}))/2$. We get the test statistic as follows:
 
-Normally, we will find $\Lambda(\vec{Y})$ and reject the null if $\Lambda(\vec{Y})>Q_{\chi^2_1}(1-\alpha)$.  However, because we have a one-sided null and the likelihood ratio test is using a $\chi^2$ distribution that treats very low and very high deviations the same, we need to correct the p-value to be $1-F_{\chi^2_1}(\Lambda(\vec{Y}))/2$ if $\hat{p}$ is between 0.5 and 1 and $1/2+F_{\chi^2_1}(\Lambda(\vec{Y}))/2$ otherwise.  We get the test statistic as follows:
-
-$$L(p;\vec{Y})=p^{n\hat{p}}(1-p)^{n-n\hat{p}}$$
-$$\implies \Lambda(\vec{Y})=2\log\left(\frac{L(\hat{p};\vec{Y})}{L(1/2;\vec{Y})}\right)=2\log\left(\frac{\hat{p}^{n\hat{p}}(1-\hat{p})^{n-n\hat{p}}}{1/2^n}\right)=2\left(n\log(2)+n\hat{p}\log(\hat{p})+(n-n\hat{p})\log(1-\hat{p})\right)$$
+$$L(p;\vv{Y})=p^{n\hat{p}}(1-p)^{n-n\hat{p}}$$
+$$\implies \Lambda(\vv{Y})=2\log\left(\frac{L(\hat{p};\vv{Y})}{L(1/2;\vv{Y})}\right)=2\log\left(\frac{\hat{p}^{n\hat{p}}(1-\hat{p})^{n-n\hat{p}}}{1/2^n}\right)=2\left(n\log(2)+n\hat{p}\log(\hat{p})+(n-n\hat{p})\log(1-\hat{p})\right)$$
 
 ```{r}
 pchisq(2 * (n * log(2) + n * phat * log(phat) + (n - n * phat) * log(1 - phat)), 
        df = 1, lower.tail = F) / 2
 ```
 
-12. How do these compare to the exact p-value?
+11. How do these compare to the exact p-value?
 
-Since $n\hat{p}\sim\textrm{Bin}(n,p)$, the exact p-value is given as $1-F_{\textrm{Bin}(n,1/2)}(n\hat{p})$, the probability of observing data more extreme than was actually observed.
+Since $n\hat{p}\sim\textrm{Bin}(n,p)$, the exact p-value is given as $1-F_{\textrm{Bin}(n,1/2)}(n\hat{p} - 1)$, the probability of observing data as or more extreme than was actually observed.
 
 ```{r}
 1 - pbinom(8-1, 10, 1/2)
